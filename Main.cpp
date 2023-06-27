@@ -86,6 +86,12 @@ int main()
 				game = Game(getRandMap(maps), HUD, lives, score, font, &hScore, ++level);
 			else
 			{
+				if (hScore > hScoreOrigin)
+				{
+					fileOut.open("res/highscore.txt");
+					fileOut << game.getScore();
+					fileOut.close();
+				}
 				score = 0;
 				level = 0;
 				maps.clear();
