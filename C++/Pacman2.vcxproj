@@ -157,6 +157,27 @@
     <ClInclude Include="Pacman.h" />
     <ClInclude Include="SignalGhost.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\res\maps\map0.png" />
+    <Image Include="..\res\maps\map1.png" />
+    <Image Include="..\res\maps\map10.png" />
+    <Image Include="..\res\maps\map11.png" />
+    <Image Include="..\res\maps\map12.png" />
+    <Image Include="..\res\maps\map13.png" />
+    <Image Include="..\res\maps\map14.png" />
+    <Image Include="..\res\maps\map2.png" />
+    <Image Include="..\res\maps\map3.png" />
+    <Image Include="..\res\maps\map4.png" />
+    <Image Include="..\res\maps\map5.png" />
+    <Image Include="..\res\maps\map6.png" />
+    <Image Include="..\res\maps\map7.png" />
+    <Image Include="..\res\maps\map8.png" />
+    <Image Include="..\res\maps\map9.png" />
+    <Image Include="..\res\textures\Tilemap.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\res\fonts\emulogic.ttf" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

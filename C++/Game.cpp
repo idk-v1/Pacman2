@@ -3,7 +3,7 @@
 
 Game::Game(int num, int HUD, int lives, int score, sf::Font& font, int *hScore, int level)
 {
-	texture.loadFromFile("res/textures/tilemap.png");
+	texture.loadFromFile("../res/textures/tilemap.png");
 	loadMap(num);
 
 	for (int i = 0; i < 3; i++)
@@ -501,7 +501,7 @@ void Game::loadMap(int num)
 	lightVert.setPrimitiveType(sf::Quads);
 	lightVert.resize(mapSize.x * lightScale * mapSize.y * lightScale * 4);
 
-	if (img.loadFromFile("res/maps/map" + std::to_string(num) + ".png"))
+	if (img.loadFromFile("../res/maps/map" + std::to_string(num) + ".png"))
 	{
 		for (int y = 0; y < mapSize.y; y++)
 			for (int x = 0; x < mapSize.x / 2; x++)
