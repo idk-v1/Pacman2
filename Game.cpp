@@ -355,6 +355,7 @@ void Game::draw(sf::RenderWindow& window)
 		}
 	}
 
+	// Orange overlay
 	rect.setFillColor(sf::Color(0xFF880044));
 	rect.setSize(sf::Vector2f(mapSize.x * scale, mapSize.y * scale));
 	rect.setPosition(xoff, yoff);
@@ -393,7 +394,7 @@ void Game::draw(sf::RenderWindow& window)
 
 	// Draws score
 	scoreTxt.setCharacterSize(scale / 2.f);
-	scoreTxt.setPosition(xoff + mapSize.x * scale / 2 - scoreTxt.getGlobalBounds().width / 2, yHUDOff + scoreTxt.getGlobalBounds().height / 4);
+	scoreTxt.setPosition(xoff + mapSize.x / 2 * scale - scoreTxt.getGlobalBounds().width, yHUDOff + scoreTxt.getGlobalBounds().height / 4);
 	window.draw(scoreTxt);
 	hScoreTxt.setCharacterSize(scale / 2.f);
 	hScoreTxt.setPosition(xoff + mapSize.x * scale - hScoreTxt.getGlobalBounds().width - scale, yHUDOff + hScoreTxt.getGlobalBounds().height / 4);
