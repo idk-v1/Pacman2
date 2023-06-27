@@ -208,9 +208,8 @@ void Game::update()
 		recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight * overTimer / (5.f * 60), false);
 
 		// Light portals
-		if (!pacman.hasWon() && lives)
-			for (auto portal : portals)
-				recLight(map, light, lightVert, portal.x * lightScale, portal.y * lightScale, maxLight / (2 - (portalTimer / 60.f)), false);
+		for (auto portal : portals)
+			recLight(map, light, lightVert, portal.x * lightScale, portal.y * lightScale, maxLight * overTimer / (5.f * 60) / (2 - (portalTimer / 60.f)), false);
 	}
 }
 
@@ -355,6 +354,11 @@ void Game::draw(sf::RenderWindow& window)
 			window.draw(rect);
 		}
 	}
+
+	rect.setFillColor(sf::Color(0xFF880044));
+	rect.setSize(sf::Vector2f(mapSize.x * scale, mapSize.y * scale));
+	rect.setPosition(xoff, yoff);
+	window.draw(rect);
 
 	// Draws lighting
 	window.draw(lightVert);

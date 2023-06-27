@@ -189,7 +189,7 @@ bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std
 		}
 		return true;
 	}
-	if (pos.x == pacman.getPos().x)
+	else if (pos.x == pacman.getPos().x)
 	{
 		if (pos.y < pacman.getPos().y)
 		{
@@ -198,7 +198,7 @@ bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std
 					return false;
 			return true;
 		}
-		if (pos.y > pacman.getPos().y)
+		else if (pos.y > pacman.getPos().y)
 		{
 			for (int i = pacman.getPos().y; i <= pos.y; i++)
 				if (!canMove(pos.x, i, map, mapSize))
@@ -206,7 +206,7 @@ bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std
 			return true;
 		}
 	}
-	if (pos.y == pacman.getPos().y)
+	else if (pos.y == pacman.getPos().y)
 	{
 		if (pos.x < pacman.getPos().x)
 		{
@@ -215,7 +215,7 @@ bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std
 					return false;
 			return true;
 		}
-		if (pos.x > pacman.getPos().x)
+		else if (pos.x > pacman.getPos().x)
 		{
 			for (int i = pacman.getPos().x; i <= pos.x; i++)
 				if (!canMove(i, pos.y, map, mapSize))
