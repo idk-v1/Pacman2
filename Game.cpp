@@ -200,13 +200,17 @@ void Game::update()
 		scoreTxt.setString("SCORE " + std::to_string(score) + "+" + std::to_string(bonusScore / 60 * 500));
 		hScoreTxt.setString("HIGH " + std::to_string(*hScore) + " LVL " + std::to_string(level + 1));
 
+		if (!dots && portalTimer < 60)
+			portalTimer += 2;
+
+
 		// Light pacman
 		recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight * overTimer / (5.f * 60), false);
 
 		// Light portals
 		if (!pacman.hasWon() && lives)
 			for (auto portal : portals)
-				recLight(map, light, lightVert, portal.x * lightScale, portal.y * lightScale, maxLight / (1 + (dots != 0)), false);
+				recLight(map, light, lightVert, portal.x * lightScale, portal.y * lightScale, maxLight / (2 - (portalTimer / 60.f)), false);
 	}
 }
 
