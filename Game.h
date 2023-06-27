@@ -54,7 +54,7 @@ private:
 	int scale = 0, oldScale = 0, xoff = 0, yoff = 0, yHUDOff = 0, 
 		lightScale = 3, lightRange = 10, maxLight = lightScale * lightRange, 
 		lag = 0, overTimer = 5 * 60, startTimer = 3 * 60, seenTimer = 0,
-		HUD, lives = 3, score = 0, *hScore = NULL, bonusScore = 15 * 60, level = 0,
+		HUD, lives = 3, score = 0, *hScore = NULL, bonusScore = 10 * 60, level = 0,
 		dots = 0, maxDots = 0, dotProg = 0, inputTimer = 0, inputDir = -1;
 
 	float inputBuffer = 0.5f;
