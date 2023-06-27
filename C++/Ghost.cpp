@@ -141,8 +141,8 @@ void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vecto
 		}
 
 		if (pos.x == -1)
-			pos.x = 27;
-		if (pos.x == 28)
+			pos.x = mapSize.x - 1;
+		if (pos.x == mapSize.x)
 			pos.x = 0;
 	}
 
