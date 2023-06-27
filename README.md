@@ -31,7 +31,10 @@
 
 
 ## Custom Map Format
-### Maps are 28x31 (or 14x31) images;
+### [Pacman Maze Generator](https://shaunlebron.github.io/pacman-mazegen/tetris/many.htm)
+### Maps are 28x31 (or 14x31) images
+##### Example: 
+<img src="res/maps/map0.png" width="280" height="310" style="image-rendering: pixelated"></img>
 ### The supported image formats are bmp, png, tga, jpg, gif, psd, hdr, and pic.
 #### Only the left half of the map will be read because Pacman maps are symmetrical.<br>The right half of the map is not required for reading.
 ### Portals
