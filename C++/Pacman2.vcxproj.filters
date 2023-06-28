@@ -115,4 +115,9 @@
       <Filter>Resource Files\fonts</Filter>
     </Font>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
