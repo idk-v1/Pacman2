@@ -6,20 +6,20 @@
 #### Textures and sounds and animations will come later.
 
 ## Controls
-#### Use WASD or the arrow keys to change directions.
-#### Use numbers 1 - 9 to change the lighting scale (I can't tell the difference past 7).
+- Use WASD or the arrow keys to change directions.
+- Use numbers 1 - 9 to change the lighting scale (I can't tell the difference past 7).
 
 ## Changes from the original
-#### Pacman has a light and cannot see the ghosts until they are close.
-#### The yellow bar at the top shows the remaining dots, because the dots are hard to find when you can't see the whole map.
-#### Portals glow faintly, and light up at full brightness when all dots are eaten.
-#### The powerups provide invincibility for 5 seconds and Pacman moves at 14 speed.
-#### After all of the dots have been eaten, Pacman still needs to go through a portal to get to the next level.
-#### When a ghost catches Pacman, Pacman becomes invincible for 3 seconds and all ghosts move at 1 speed. Only the ghost returns to its starting position.
-#### When a ghost is targeting Pacman, the view will fade into red.
-#### Bonus points are awarded for not being seen by the ghosts.
-#### All speeds and timings stay the same as more levels are completed. Only the map changes. The original pacman map is first, then a random map is chosen. After all maps have been beaten or a map fails to load, the error map is created.
-#### The ghosts only come in two types, Chasers and Signalers (Maybe more types later).
+- Pacman has a light and cannot see the ghosts until they are close.
+- The yellow bar at the top shows the remaining dots, because the dots are hard to find when you can't see the whole map.
+- Portals glow faintly, and light up at full brightness when all dots are eaten.
+- The powerups provide invincibility for 5 seconds and Pacman moves at 10 speed.
+- After all of the dots have been eaten, Pacman still needs to go through a portal to get to the next level.
+- When a ghost catches Pacman, Pacman becomes invincible for 3 seconds and all ghosts move at 1 speed. Only the ghost returns to its starting position.
+- When a ghost is targeting Pacman, the view will fade into red.
+- Bonus points are awarded for not being seen by the ghosts.
+- All speeds and timings stay the same as more levels are completed. Only the map changes. The original pacman map is first, then a random map is chosen. After all maps have been beaten or a map fails to load, the error map is created.
+- The ghosts only come in two types, Chasers and Signalers (Maybe more types later).
 
 ## Ghost types
 #### Ghost default speed: 3
