@@ -20,7 +20,7 @@ int main()
 	window.setFramerateLimit(165);
 
 	int numMaps = 0;
-	for (auto& entry : std::filesystem::directory_iterator("res/maps"))
+	for (auto& entry : std::filesystem::directory_iterator("../res/maps"))
 		if (entry.is_regular_file())
 			numMaps++;
 
@@ -32,7 +32,7 @@ int main()
 	sf::Font font;
 	std::ofstream fileOut;
 	std::ifstream fileIn;
-	fileIn.open("res/highscore.txt");
+	fileIn.open("../res/highscore.txt");
 	if (fileIn.is_open())
 	{
 		fileIn >> hScoreOrigin;
@@ -40,7 +40,7 @@ int main()
 		fileIn.close();
 	}
 
-	font.loadFromFile("res/fonts/emulogic.ttf");
+	font.loadFromFile("../res/fonts/emulogic.ttf");
 
 
 	Game game(0, HUD, lives, 0, font, &hScore, 0);
@@ -62,7 +62,7 @@ int main()
 				window.close();
 				if (hScore > hScoreOrigin)
 				{
-					fileOut.open("res/highscore.txt");
+					fileOut.open("../res/highscore.txt");
 					fileOut << game.getScore();
 					fileOut.close();
 				}
@@ -88,7 +88,7 @@ int main()
 			{
 				if (hScore > hScoreOrigin)
 				{
-					fileOut.open("res/highscore.txt");
+					fileOut.open("../res/highscore.txt");
 					fileOut << game.getScore();
 					fileOut.close();
 				}

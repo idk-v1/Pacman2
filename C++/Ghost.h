@@ -51,5 +51,5 @@ protected:
 
 	sf::Vector2i pos, prog, target = { -10, -10 }, spawn;
 	int speed = 3, defSpeed = speed, dir = 3, health = 1, timer = 0, slowTimer = 0;
-	bool hasTarget = false, hasLineOfSight = false, free = false, firstTarget = true;
+	bool hasTarget = false, hasLineOfSight = false, isFree = false, firstTarget = true;
 };

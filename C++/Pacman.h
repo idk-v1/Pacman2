@@ -32,7 +32,7 @@ public:
 
 private:
 
-	bool canMove(int x, int y, std::vector<std::vector<char>>& map, int dots, sf::Vector2i mapSize);
+	bool canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize);
 
 	sf::Vector2i pos, prog;
 	int speed = 7, dir = 3, damageTimer = 0;
