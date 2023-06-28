@@ -1,31 +1,34 @@
-#include "SignalGhost.h"
+import { Ghost } from "./Ghost"
 
-SignalGhost::SignalGhost()
+export class SignalGhost extends Ghost
 {
-	color = sf::Color(0xFF8888FF);
-}
-
-void SignalGhost::special(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize, int& lives)
-{
-	firstTarget = false;
-
-	if (lineOfSight(map, pacman, ghosts, mapSize, lives) && !pacman.getPower())
+	constructor()
 	{
-		hasLineOfSight = true;
-		for (auto& ghost : ghosts)
-			ghost->setTimer(5 * 60);
+		this.color = "#FF8888";
 	}
-	else
-		hasLineOfSight = false;
 
-	if (!pacman.getPower())
+	special(map, pacman, ghosts, mapSize)
 	{
-		hasTarget = true;
-		target = pacman.getPos();
-	}
-}
+		this.firstTarget = false;
 
-int SignalGhost::getType()
-{
-	return 1;
+		if (this.lineOfSight(map, pacman, ghosts, mapSize) && !pacman.getPower())
+		{
+			this.hasLineOfSight = true;
+			for (let ghost in ghosts)
+				ghost.setTimer(5 * 60);
+		}
+		else
+			this.hasLineOfSight = false;
+
+		if (!pacman.getPower())
+		{
+			this.hasTarget = true;
+			this.target = pacman.getPos();
+		}
+	}
+
+	getType()
+	{
+		return 1;
+	}
 }

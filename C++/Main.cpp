@@ -28,7 +28,6 @@ int main()
 	for (int i = 1; i < numMaps; i++)
 		maps.push_back(i);
 
-	sf::Clock timer;
 	sf::Font font;
 	std::ofstream fileOut;
 	std::ifstream fileIn;

@@ -1,16 +1,13 @@
 import { Pacman } from "./Pacman"
 
-import { Vector2 } from "./lib/vector2"
-import { Color } from "./lib/color"
-
 export class Ghost
 {
 
     constructor()
     {
-        this.color = new Color(255, 0, 255, 255);
+        this.color = "#FF00FF";
 
-        this.pos = new Vector2(), this.prog = new Vector2(), this.target = new Vector2(-10, -10), this.spawn = new Vector2();
+        this.pos = {x: 0, y: 0}, this.prog = {x: 0, y: 0}, this.target = {x: 0, y: 0}, this.spawn = {x: 0, y: 0};
         this.speed = 3, this.defSpeed = this.speed, this.dir = 3, this.health = 1, this.timer = 0, this.slowTimer = 0;
         this.hasTarget = false, this.hasLineOfSight = false, this.free = false, this.firstTarget = true;
     }
@@ -28,7 +25,7 @@ export class Ghost
         this.free = false;
     }
 
-    move(map, pacman, ghosts, mapSize, lives)
+    move(map, pacman, ghosts, mapSize)
     {
         let minDist, dir, value;
         let taken;
@@ -118,7 +115,7 @@ export class Ghost
                             this.prog.x--;
                 }
 
-                this.special(map, pacman, ghosts, mapSize, lives);
+                this.special(map, pacman, ghosts, mapSize);
             }
             else
             {
@@ -181,7 +178,7 @@ export class Ghost
         return this.dir;
     }
 
-    lineOfSight(map, pacman, ghosts, mapSize, lives)
+    lineOfSight(map, pacman, ghosts, mapSize)
     {
         if (this.pos.x == pacman.getPos().x && this.pos.y == pacman.getPos().y)
         {
@@ -235,7 +232,7 @@ export class Ghost
         return false;
     }
 
-    special(map, pacman, ghosts, mapSize, lives)
+    special(map, pacman, ghosts, mapSize)
     {
 
     }

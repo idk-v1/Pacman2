@@ -1,31 +1,34 @@
-#include "ChaserGhost.h"
+import { Ghost } from "./Ghost"
 
-ChaserGhost::ChaserGhost()
+export class ChaserGhost extends Ghost
 {
-	color = sf::Color(0x8888FFFF);
-}
-
-void ChaserGhost::special(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize, int& lives)
-{
-	if (lineOfSight(map, pacman, ghosts, mapSize, lives) && !pacman.getPower())
+	constructor()
 	{
-		setTimer(2 * 60);
-		hasLineOfSight = true;
+		this.color = "#8888FF";
 	}
-	else
-		hasLineOfSight = false;
 
-	if (timer && !firstTarget)
+	special(map, pacman, ghosts, mapSize)
 	{
-		hasTarget = true;
-		target = pacman.getPos();
-		speed = defSpeed + 2 + hasLineOfSight * 3;
-	}
-	else
-		speed = defSpeed;
-}
+		if (this.lineOfSight(map, pacman, ghosts, mapSize) && !pacman.getPower())
+		{
+			this.setTimer(2 * 60);
+			this.hasLineOfSight = true;
+		}
+		else
+			this.hasLineOfSight = false;
 
-int ChaserGhost::getType()
-{
-	return 0;
+		if (this.timer && !this.firstTarget)
+		{
+			this.hasTarget = true;
+			this.target = pacman.getPos();
+			this.speed = this.defSpeed + 2 + this.hasLineOfSight * 3;
+		}
+		else
+			this.speed = this.defSpeed;
+	}
+
+	getType()
+	{
+		return 0;
+	}
 }

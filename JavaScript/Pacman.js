@@ -1,11 +1,9 @@
-import { Vector2 } from "./lib/vector2"
-
 export class Pacman
 {
 
     constructor()
     {
-        this.pos = new Vector2(), this.prog = new Vector2();
+        this.pos = {x: 0, y: 0}, this.prog = {x: 0, y: 0};
         this.speed = 7, this.dir = 3, this.damageTimer = 0;
         this.power = false, this.win = false;
     }
@@ -16,7 +14,7 @@ export class Pacman
         prog.x = 50;
     }
 
-    move(dir, map, dots, mapSize)
+    move(dir, map, mapSize)
     {
 
         for (let i = 0; i < this.speed * (1 + (this.power || !dots)); i++)
@@ -26,19 +24,19 @@ export class Pacman
                 switch (dir)
                 {
                     case 0:
-                        if (this.canMove(this.pos.x, this.pos.y - 1, map, dots, mapSize))
+                        if (this.canMove(this.pos.x, this.pos.y - 1, map, mapSize))
                             this.dir = dir;
                         break;
                     case 1:
-                        if (this.canMove(this.pos.x + 1, this.pos.y, map, dots, mapSize))
+                        if (this.canMove(this.pos.x + 1, this.pos.y, map, mapSize))
                             this.dir = dir;
                         break;
                     case 2:
-                        if (this.canMove(this.pos.x, this.pos.y + 1, map, dots, mapSize))
+                        if (this.canMove(this.pos.x, this.pos.y + 1, map, mapSize))
                             this.dir = dir;
                         break;
                     case 3:
-                        if (this.canMove(this.pos.x - 1, this.pos.y, map, dots, mapSize))
+                        if (this.canMove(this.pos.x - 1, this.pos.y, map, mapSize))
                             this.dir = dir;
                 }
             }
@@ -46,19 +44,19 @@ export class Pacman
             switch (this.dir)
             {
                 case 0:
-                    if (this.canMove(this.pos.x, this.pos.y - 1, map, dots, mapSize))
+                    if (this.canMove(this.pos.x, this.pos.y - 1, map, mapSize))
                         this.prog.y--;
                     break;
                 case 1:
-                    if (this.canMove(this.pos.x + 1, this.pos.y, map, dots, mapSize))
+                    if (this.canMove(this.pos.x + 1, this.pos.y, map, mapSize))
                         this.prog.x++;
                     break;
                 case 2:
-                    if (this.canMove(this.pos.x, this.pos.y + 1, map, dots, mapSize))
+                    if (this.canMove(this.pos.x, this.pos.y + 1, map, mapSize))
                         this.prog.y++;
                     break;
                 case 3:
-                    if (this.canMove(this.pos.x - 1, this.pos.y, map, dots, mapSize))
+                    if (this.canMove(this.pos.x - 1, this.pos.y, map, mapSize))
                         this.prog.x--;
             }
 
@@ -165,7 +163,7 @@ export class Pacman
             this.dir = dir;
     }
 
-    canMove(x, y, map, dots, mapSize)
+    canMove(x, y, map, mapSize)
     {
         if (x >= 0 && y >= 0 && y < map.size() && x < map[0].size())
             return (map[y][x] == 0 || map[y][x] == 7 || map[y][x] == 8 || map[y][x] == 9);
