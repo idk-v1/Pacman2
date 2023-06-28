@@ -20,19 +20,19 @@ void Pacman::move(int dir, std::vector<std::vector<char>>& map, int dots, sf::Ve
 			switch (dir)
 			{
 			case 0:
-				if (canMove(pos.x, pos.y - 1, map, dots, mapSize))
+				if (canMove(pos.x, pos.y - 1, map, mapSize))
 					this->dir = dir;
 				break;
 			case 1:
-				if (canMove(pos.x + 1, pos.y, map, dots, mapSize))
+				if (canMove(pos.x + 1, pos.y, map, mapSize))
 					this->dir = dir;
 				break;
 			case 2:
-				if (canMove(pos.x, pos.y + 1, map, dots, mapSize))
+				if (canMove(pos.x, pos.y + 1, map, mapSize))
 					this->dir = dir;
 				break;
 			case 3:
-				if (canMove(pos.x - 1, pos.y, map, dots, mapSize))
+				if (canMove(pos.x - 1, pos.y, map, mapSize))
 					this->dir = dir;
 			}
 		}
@@ -40,19 +40,19 @@ void Pacman::move(int dir, std::vector<std::vector<char>>& map, int dots, sf::Ve
 		switch (this->dir)
 		{
 		case 0:
-			if (canMove(pos.x, pos.y - 1, map, dots, mapSize))
+			if (canMove(pos.x, pos.y - 1, map, mapSize))
 				prog.y--;
 			break;
 		case 1:
-			if (canMove(pos.x + 1, pos.y, map, dots, mapSize))
+			if (canMove(pos.x + 1, pos.y, map, mapSize))
 				prog.x++;
 			break;
 		case 2:
-			if (canMove(pos.x, pos.y + 1, map, dots, mapSize))
+			if (canMove(pos.x, pos.y + 1, map, mapSize))
 				prog.y++;
 			break;
 		case 3:
-			if (canMove(pos.x - 1, pos.y, map, dots, mapSize))
+			if (canMove(pos.x - 1, pos.y, map, mapSize))
 				prog.x--;
 		}
 
@@ -159,7 +159,7 @@ void Pacman::setDir(int dir)
 		this->dir = dir;
 }
 
-bool Pacman::canMove(int x, int y, std::vector<std::vector<char>>& map, int dots, sf::Vector2i mapSize)
+bool Pacman::canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize)
 {
 	if (x >= 0 && y >= 0 && y < map.size() && x < map[0].size())
 		return (map[y][x] == 0 || map[y][x] == 7 || map[y][x] == 8 || map[y][x] == 9);

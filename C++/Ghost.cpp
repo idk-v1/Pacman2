@@ -12,11 +12,10 @@ void Ghost::start(sf::Vector2i pos)
 	prog.x = 50;
 	prog.y = 0;
 	dir = rand() % 2 * 2 + 1;
-		dir = 3;
 	hasTarget = false;
 	timer = 0;
 	speed = 3;
-	free = false;
+	isFree = false;
 }
 
 void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>ghosts, sf::Vector2i mapSize, int& lives)
@@ -29,7 +28,7 @@ void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vecto
 		minDist = 999;
 		dir = -1;
 
-		if (free)
+		if (isFree)
 		{
 
 			if (!prog.x && !prog.y)
@@ -114,7 +113,7 @@ void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vecto
 		else
 		{
 			if (canMove(pos.x, pos.y, map, mapSize))
-				free = true;
+				isFree = true;
 			else
 				prog.y--;
 		}
