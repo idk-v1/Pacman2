@@ -16,6 +16,7 @@ void Ghost::start(sf::Vector2i pos)
 	timer = 0;
 	speed = 3;
 	isFree = false;
+	hasLineOfSight = false;
 }
 
 void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>ghosts, sf::Vector2i mapSize, int& lives)
@@ -257,11 +258,6 @@ void Ghost::setTimer(int value)
 sf::Color Ghost::getColor()
 {
 	return color;
-}
-
-int Ghost::getType()
-{
-	return -1;
 }
 
 int Ghost::getTimer()

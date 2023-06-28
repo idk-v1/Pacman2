@@ -7,7 +7,7 @@ ChaserGhost::ChaserGhost()
 
 void ChaserGhost::special(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize, int& lives)
 {
-	if (lineOfSight(map, pacman, ghosts, mapSize, lives) && !pacman.getPower())
+	if (lineOfSight(map, pacman, ghosts, mapSize, lives) && !pacman.getPower() && isFree)
 	{
 		setTimer(2 * 60);
 		hasLineOfSight = true;
@@ -23,9 +23,4 @@ void ChaserGhost::special(std::vector<std::vector<char>>& map, Pacman& pacman, s
 	}
 	else
 		speed = defSpeed;
-}
-
-int ChaserGhost::getType()
-{
-	return 0;
 }

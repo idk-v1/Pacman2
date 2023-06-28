@@ -37,8 +37,8 @@ void Game::start()
 
 void Game::update()
 {
-	int seen = 0, randX, randY;
-	bool los = false, onPortal = false;
+	int seen, randX, randY;
+	bool los, onPortal;
 
 	lag += timer.restart().asMilliseconds();
 
@@ -72,6 +72,10 @@ void Game::update()
 	while (lag >= 1000 / 60)
 	{
 		lag -= 1000 / 60;
+
+		seen = 0;
+		los = false;
+		onPortal = false;
 
 		// Wait 3 seconds
 		if (startTimer)
@@ -149,17 +153,18 @@ void Game::update()
 		if (!lives || pacman.hasWon())
 		{
 			if (overTimer == 5 * 60)
-				bonusScore = bonusScore / 60 * 500 * (lives != 0);
+				bonusScore = bonusScore / 60 * 500;
 			if (overTimer)
 				overTimer--;
 			for (auto& ghost : ghosts)
 				delete ghost;
 			ghosts.clear();
 			startTimer = 1;
-			if (lives && bonusScore)
+			if (bonusScore)
 			{
 				bonusScore -= 50;
-				score += 50;
+				if (lives)
+					score += 50;
 			}
 		}
 
@@ -201,7 +206,7 @@ void Game::update()
 		if (score > *hScore)
 			*hScore = score;
 
-		scoreTxt.setString("SCORE " + std::to_string(score) + "+" + std::to_string(pacman.hasWon() ? bonusScore : bonusScore / 60 * 500));
+		scoreTxt.setString("SCORE " + std::to_string(score) + "+" + std::to_string((pacman.hasWon() || !lives) ? bonusScore : (bonusScore / 60 * 500)));
 		hScoreTxt.setString("HIGH " + std::to_string(*hScore) + " LVL " + std::to_string(level + 1));
 
 		if (!dots && portalTimer < 60)

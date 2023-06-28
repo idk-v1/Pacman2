@@ -29,8 +29,6 @@ public:
 
 	sf::Color getColor();
 
-	virtual int getType();
-
 	int getTimer();
 
 	void slow();

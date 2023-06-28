@@ -9,7 +9,7 @@ void SignalGhost::special(std::vector<std::vector<char>>& map, Pacman& pacman, s
 {
 	firstTarget = false;
 
-	if (lineOfSight(map, pacman, ghosts, mapSize, lives) && !pacman.getPower())
+	if (lineOfSight(map, pacman, ghosts, mapSize, lives) && !pacman.getPower() && isFree)
 	{
 		hasLineOfSight = true;
 		for (auto& ghost : ghosts)
@@ -23,9 +23,4 @@ void SignalGhost::special(std::vector<std::vector<char>>& map, Pacman& pacman, s
 		hasTarget = true;
 		target = pacman.getPos();
 	}
-}
-
-int SignalGhost::getType()
-{
-	return 1;
 }
