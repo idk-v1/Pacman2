@@ -148,15 +148,19 @@ void Game::update()
 		// End game
 		if (!lives || pacman.hasWon())
 		{
+			if (overTimer == 5 * 60)
+				bonusScore = bonusScore / 60 * 500 * (lives != 0);
 			if (overTimer)
 				overTimer--;
 			for (auto& ghost : ghosts)
 				delete ghost;
 			ghosts.clear();
 			startTimer = 1;
-			if (lives)
-				score += bonusScore / 60 * 500;
-			bonusScore = 0;
+			if (lives && bonusScore)
+			{
+				bonusScore -= 50;
+				score += 50;
+			}
 		}
 
 		// Resets light
@@ -197,7 +201,7 @@ void Game::update()
 		if (score > *hScore)
 			*hScore = score;
 
-		scoreTxt.setString("SCORE " + std::to_string(score) + "+" + std::to_string(bonusScore / 60 * 500));
+		scoreTxt.setString("SCORE " + std::to_string(score) + "+" + std::to_string(pacman.hasWon() ? bonusScore : bonusScore / 60 * 500));
 		hScoreTxt.setString("HIGH " + std::to_string(*hScore) + " LVL " + std::to_string(level + 1));
 
 		if (!dots && portalTimer < 60)
