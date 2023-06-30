@@ -22,7 +22,6 @@ void Ghost::start(sf::Vector2i pos)
 void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>ghosts, sf::Vector2i mapSize, int& lives)
 {
 	int minDist, dir, value;
-	bool taken;
 
 	for (int i = 0; i < speed / ((slowTimer != 0) + 1) * (1 + firstTarget * 0.5f); i++)
 	{
@@ -31,17 +30,14 @@ void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vecto
 
 		if (isFree)
 		{
+			special(map, pacman, ghosts, mapSize, lives);
 
 			if (!prog.x && !prog.y)
 			{
 				if (this->dir != 2 && canMove(pos.x, pos.y - 1, map, mapSize))
 				{
-					taken = false;
-					for (auto& ghost : ghosts)
-						if (pos.x == ghost->getPos().x && pos.y - 1 == ghost->getPos().y)
-							taken = true;
 					value = sqrt(pow(pos.x - target.x, 2) + pow(pos.y - 1 - target.y, 2));
-					if (value < minDist && !taken)
+					if (value < minDist)
 					{
 						dir = 0;
 						minDist = value;
@@ -49,12 +45,8 @@ void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vecto
 				}
 				if (this->dir != 3 && canMove(pos.x + 1, pos.y, map, mapSize))
 				{
-					taken = false;
-					for (auto& ghost : ghosts)
-						if (pos.x + 1 == ghost->getPos().x && pos.y == ghost->getPos().y)
-							taken = true;
 					value = sqrt(pow(pos.x + 1 - target.x, 2) + pow(pos.y - target.y, 2));
-					if (value < minDist && !taken)
+					if (value < minDist)
 					{
 						dir = 1;
 						minDist = value;
@@ -62,12 +54,8 @@ void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vecto
 				}
 				if (this->dir != 0 && canMove(pos.x, pos.y + 1, map, mapSize))
 				{
-					taken = false;
-					for (auto& ghost : ghosts)
-						if (pos.x == ghost->getPos().x && pos.y + 1 == ghost->getPos().y)
-							taken = true;
 					value = sqrt(pow(pos.x - target.x, 2) + pow(pos.y + 1 - target.y, 2));
-					if (value < minDist && !taken)
+					if (value < minDist)
 					{
 						dir = 2;
 						minDist = value;
@@ -75,12 +63,8 @@ void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vecto
 				}
 				if (this->dir != 1 && canMove(pos.x - 1, pos.y, map, mapSize))
 				{
-					taken = false;
-					for (auto& ghost : ghosts)
-						if (pos.x - 1 == ghost->getPos().x && pos.y == ghost->getPos().y)
-							taken = true;
 					value = sqrt(pow(pos.x - 1 - target.x, 2) + pow(pos.y - target.y, 2));
-					if (value < minDist && !taken)
+					if (value < minDist)
 					{
 						dir = 3;
 						minDist = value;
@@ -108,8 +92,6 @@ void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vecto
 				if (canMove(pos.x - 1, pos.y, map, mapSize))
 					prog.x--;
 			}
-
-			special(map, pacman, ghosts, mapSize, lives);
 		}
 		else
 		{
