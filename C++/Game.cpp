@@ -1,6 +1,10 @@
 #include "Game.h"
 
 
+Game::Game()
+{
+}
+
 Game::Game(int num, int HUD, int lives, int score, sf::Font& font, int *hScore, int level)
 {
 	texture.loadFromFile("../res/textures/tilemap.png");
@@ -32,6 +36,12 @@ void Game::start()
 
 	for (auto& ghost : ghosts)
 		ghost->start(ghostSpawn);
+
+#if !defined(NDEBUG)
+	setLightScale(4);
+#else
+	setLightScale(7);
+#endif
 }
 
 

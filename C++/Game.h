@@ -16,6 +16,8 @@
 class Game
 {
 public:
+	Game();
+
 	Game(int num, int HUD, int lives, int score, sf::Font& font, int *hScore, int level);
 
 	void start();
