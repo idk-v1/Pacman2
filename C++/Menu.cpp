@@ -37,11 +37,11 @@ void Menu::update(sf::RenderWindow& window, sf::Vector2i mousePos, int& menuStat
 		for (int i = 0; i < bElements.size(); i++)
 		{
 			bElements[i].setPosition(
-				xoff + (scale * mapSize.x) * (bCoords[i].getPosition().x - bCoords[i].getSize().x / 2.f),
-				yoff + (scale * mapSize.y) * (bCoords[i].getPosition().y - bCoords[i].getSize().y / 2.f));
+				xoff + scale * (bCoords[i].getPosition().x - bCoords[i].getSize().x / 2.f),
+				yoff + scale * (bCoords[i].getPosition().y - bCoords[i].getSize().y / 2.f));
 			bElements[i].setSize(sf::Vector2f(
-				scale * mapSize.x * bCoords[i].getSize().x,
-				scale * mapSize.y * bCoords[i].getSize().y));
+				scale * bCoords[i].getSize().x,
+				scale * bCoords[i].getSize().y));
 			bElements[i].setTextureRect(sf::IntRect(
 				0,
 				0,
@@ -56,18 +56,18 @@ void Menu::update(sf::RenderWindow& window, sf::Vector2i mousePos, int& menuStat
 			{
 			case 'C':
 				tElements[i].setPosition(
-					xoff + (scale * mapSize.x) * tCoords[i].x - tElements[i].getGlobalBounds().width / 2.f,
-					yoff + (scale * mapSize.y) * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
+					xoff + scale * tCoords[i].x - tElements[i].getGlobalBounds().width / 2.f,
+					yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
 				break;
 			case 'L':
 				tElements[i].setPosition(
-					xoff + (scale * mapSize.x) * tCoords[i].x - tElements[i].getGlobalBounds().width,
-					yoff + (scale * mapSize.y) * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
+					xoff + scale * tCoords[i].x - tElements[i].getGlobalBounds().width,
+					yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
 				break;
 			case 'R':
 				tElements[i].setPosition(
-					xoff + (scale * mapSize.x) * tCoords[i].x,
-					yoff + (scale * mapSize.y) * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
+					xoff + scale * tCoords[i].x,
+					yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
 			}
 		}
 
@@ -122,18 +122,18 @@ void Menu::setElementText(int index, std::string str)
 	{
 	case 'C':
 		tElements[index].setPosition(
-			xoff + (scale * mapSize.x) * tCoords[index].x - tElements[index].getGlobalBounds().width / 2.f,
-			yoff + (scale * mapSize.y) * tCoords[index].y - tElements[index].getGlobalBounds().height / 2.f);
+			xoff + scale * tCoords[index].x - tElements[index].getGlobalBounds().width / 2.f,
+			yoff + scale * tCoords[index].y - tElements[index].getGlobalBounds().height / 2.f);
 		break;
 	case 'L':
 		tElements[index].setPosition(
-			xoff + (scale * mapSize.x) * tCoords[index].x - tElements[index].getGlobalBounds().width,
-			yoff + (scale * mapSize.y) * tCoords[index].y - tElements[index].getGlobalBounds().height / 2.f);
+			xoff + scale * tCoords[index].x - tElements[index].getGlobalBounds().width,
+			yoff + scale * tCoords[index].y - tElements[index].getGlobalBounds().height / 2.f);
 		break;
 	case 'R':
 		tElements[index].setPosition(
-			xoff + (scale * mapSize.x) * tCoords[index].x,
-			yoff + (scale * mapSize.y) * tCoords[index].y - tElements[index].getGlobalBounds().height / 2.f);
+			xoff + scale * tCoords[index].x,
+			yoff + scale * tCoords[index].y - tElements[index].getGlobalBounds().height / 2.f);
 	}
 }
 
