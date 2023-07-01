@@ -10,24 +10,30 @@ void SignalGhost::special(std::vector<std::vector<char>>& map, std::vector<Pacma
 	hasLineOfSight = false;
 	firstTarget = false;
 
-	for (auto& pacman : pacmen)
+	for (int i = 0; i < pacmen.size(); i++)
 	{
-		if (lineOfSight(map, pacman, ghosts, mapSize) && !pacman.getPower() && isFree)
+		if (lineOfSight(map, pacmen[i], ghosts, mapSize) && !pacmen[i].getPower() && isFree)
 		{
 			hasLineOfSight = true;
 			for (auto& ghost : ghosts)
+			{
 				ghost->setTimer(5 * 60);
+				ghost->assignPacman(i);
+			}
 		}
 
-		if (!pacman.getPower())
+		if (!pacmen[targetPacman].getPower())
 		{
 			hasTarget = true;
-			target = pacman.getPos();
+			target = pacmen[targetPacman].getPos();
+			if (!*pacmen[targetPacman].lives)
+				targetPacman = (targetPacman + 1) % pacmen.size();
 		}
 	}
 }
 
 void SignalGhost::assignPacman(int index)
 {
-	targetPacman = index;
+	if (firstTarget)
+		targetPacman = index;
 }

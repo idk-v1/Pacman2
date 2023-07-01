@@ -52,6 +52,6 @@ protected:
 	sf::Color color;
 
 	sf::Vector2i pos, prog, target = { -10, -10 }, spawn;
-	int speed = 3, defSpeed = speed, dir = 3, health = 1, timer = 0, slowTimer = 0;
+	int speed = 3, defSpeed = speed, dir = 3, health = 1, timer = 0, slowTimer = 0, targetPacman = -1;
 	bool hasTarget = false, hasLineOfSight = false, isFree = false, firstTarget = true;
 };

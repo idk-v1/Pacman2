@@ -195,3 +195,33 @@ void Menu::load(std::string path, sf::Font& font)
 		file.close();
 	}
 }
+
+void Menu::addTextElement(float x, float y, float fontSize, char align, std::string str, sf::Font& font)
+{
+	sf::Text text;
+	text.setFont(font);
+	text.setString(str);
+	tCoords.push_back({ x, y });
+	tFontSize.push_back(fontSize);
+	tAlign.push_back(align);
+	tElements.push_back(text);
+
+	text.setCharacterSize(scale * fontSize);
+	switch (align)
+	{
+	case 'C':
+		text.setPosition(
+			xoff + scale * x - text.getGlobalBounds().width / 2.f,
+			yoff + scale * y - text.getGlobalBounds().height / 2.f);
+		break;
+	case 'L':
+		text.setPosition(
+			xoff + scale * x - text.getGlobalBounds().width,
+			yoff + scale * y - text.getGlobalBounds().height / 2.f);
+		break;
+	case 'R':
+		text.setPosition(
+			xoff + scale * x,
+			yoff + scale * y - text.getGlobalBounds().height / 2.f);
+	}
+}

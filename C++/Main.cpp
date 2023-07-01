@@ -1,7 +1,6 @@
 // https://shaunlebron.github.io/pacman-mazegen/tetris/many.htm
 
 #include "Game.h"
-#include "MultiplayerGame.h"
 #include "Menu.h"
 
 #include <SFML/Window/Event.hpp>
@@ -69,7 +68,7 @@ int main()
 
 	Game game;
 
-	int numPacmen = 1;
+	int numPacmen = 1, numGhosts = 0;
 
 	int numPlayers = 1, connection = 0;
 	unsigned short port;
@@ -108,14 +107,19 @@ int main()
 		case 1: // Singleplayer
 			if (changeMenu)
 			{
+				scores.reserve(numPacmen);
+				lives.reserve(numPacmen);
+				livesPtr.reserve(numPacmen);
 				for (int i = 0; i < numPacmen; i++)
+				{
 					scores.push_back(0);
-				lives.push_back(3);
-				livesPtr.push_back(&lives.back());
+					lives.push_back(3);
+					livesPtr.push_back(&lives[i]);
+				}
 				gameover.setElementPage(0, 1);
 				level = 0;
 				score = 0;
-				game = Game(0, HUD, livesPtr, scores, font, &hScore, 0, 0);
+				game = Game(0, HUD, livesPtr, scores, font, &hScore, 0, 0, numPacmen, numGhosts);
 			}
 			game.update();
 			game.draw(window);
@@ -132,17 +136,22 @@ int main()
 				for (int i = 0; i < numPacmen; i++)
 					scores[i] = game.getScore(i);
 				if (livesRemaining)
-					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0);
+					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0, numPacmen, numGhosts);
 				else
 				{
 					lives.clear();
 					livesPtr.clear();
 					menuState = 2;
-					gameover.setElementText(4, std::to_string(level + 1));
-					gameover.setElementText(5, std::to_string(hScore));
-					gameover.setElementText(6, std::to_string(scores[0]));
+					gameover.setElementText(5, std::to_string(level + 1));
+					gameover.setElementText(4, std::to_string(hScore));
+					for (int i = 0; i < numPacmen; i++)
+					{
+						gameover.addTextElement(20, 16.5 + i, 0.75, 'L', std::to_string(scores[i]), font);
+						gameover.addTextElement(8, 16.5 + i, 0.75, 'R', "Pacman " + std::to_string(i + 1), font);
+					}
 					if (hScore > hScoreOrigin)
 						save(hScore);
+					scores.clear();
 				}
 			}
 			break;

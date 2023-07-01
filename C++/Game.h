@@ -19,7 +19,7 @@ class Game
 public:
 	Game();
 
-	Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum);
+	Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum, int pacmenNum, int ghostNum);
 
 	void update();
 
@@ -45,6 +45,9 @@ private:
 	std::vector<int*> lives;
 	std::vector<int> scores;
 
+	std::vector<char> inputTimer;
+	std::vector<char> inputDir;
+
 	std::vector<sf::Vector2f> portals;
 
 	sf::Text scoreTxt, hScoreTxt;
@@ -55,7 +58,7 @@ private:
 		lightScale = 3, lightRange = 10, maxLight = lightScale * lightRange,
 		lag = 0, overTimer = 5 * 60, startTimer = 3 * 60, seenTimer = 0, portalTimer = 0,
 		HUD = 0, *hScore = NULL, level = 0,
-		dots = 0, maxDots = 0, dotProg = 0, inputTimer = 0, inputDir = -1, client = -1;
+		dots = 0, maxDots = 0, dotProg = 0, client = -1;
 
 	float inputBuffer = 0.5f;
 

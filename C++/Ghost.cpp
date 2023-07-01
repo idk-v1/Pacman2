@@ -158,6 +158,8 @@ void Ghost::turn(std::vector<std::vector<char>>& map, sf::Vector2i mapSize)
 
 bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize)
 {
+	if (!*pacman.lives)
+		return false;
 	if (pos.x == pacman.getPos().x && pos.y == pacman.getPos().y)
 	{
 		if (!pacman.getDamageTimer())
@@ -166,7 +168,10 @@ bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std
 			if (!pacman.getDamageTimer())
 				pacman.damage();
 			for (auto& ghost : ghosts)
+			{
 				ghost->slow();
+				ghost->setTimer(0);
+			}
 		}
 		return true;
 	}
@@ -263,6 +268,7 @@ void Ghost::loseTarget()
 
 void Ghost::assignPacman(int index)
 {
+	targetPacman = index;
 }
 
 bool Ghost::canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize)

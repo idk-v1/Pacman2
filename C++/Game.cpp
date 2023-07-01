@@ -5,7 +5,7 @@ Game::Game()
 {
 }
 
-Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum)
+Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum, int pacmenNum, int ghostNum)
 {
 	texture.loadFromFile("../res/textures/tilemap.png");
 	loadMap(num);
@@ -24,9 +24,11 @@ Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, 
 	hScoreTxt.setFont(font);
 
 	timer.restart();
-	pacmen.push_back(Pacman());
-	for (int i = 0; i < pacmen.size(); i++)
+	for (int i = 0; i < pacmenNum; i++)
 	{
+		pacmen.push_back(Pacman());
+		inputTimer.push_back(0);
+		inputDir.push_back(3);
 		pacmen[i].start(pacmanSpawn, lives[i]);
 		pacmen[i].setScore(score[i]);
 		ghosts.push_back(new SignalGhost());
@@ -57,23 +59,23 @@ void Game::update()
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
-		inputTimer = 60 * inputBuffer;
-		inputDir = 0;
+		inputTimer[client] = 60 * inputBuffer;
+		inputDir[client] = 0;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
-		inputTimer = 60 * inputBuffer;
-		inputDir = 1;
+		inputTimer[client] = 60 * inputBuffer;
+		inputDir[client] = 1;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 	{
-		inputTimer = 60 * inputBuffer;
-		inputDir = 2;
+		inputTimer[client] = 60 * inputBuffer;
+		inputDir[client] = 2;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
-		inputTimer = 60 * inputBuffer;
-		inputDir = 3;
+		inputTimer[client] = 60 * inputBuffer;
+		inputDir[client] = 3;
 	}
 
 	// Changes light detail keys 1 - 9
@@ -94,7 +96,7 @@ void Game::update()
 		if (startTimer)
 		{
 			startTimer--;
-			pacmen[client].setDir(inputDir);
+			pacmen[client].setDir(inputDir[client]);
 		}
 		else
 		{
@@ -105,17 +107,21 @@ void Game::update()
 				ghost->move(map, pacmen, ghosts, mapSize);
 			}
 
-			if (inputTimer)
-				inputTimer--;
-			else
-				inputDir = -1;
+			for (int i = 0; i < pacmen.size(); i++)
+			{
+				if (inputTimer[i])
+					inputTimer[i]--;
+				else
+					inputDir[i] = -1;
+			}
 
 			// Update pacman
+			int count = 0;
 			for (auto& pacman : pacmen)
 			{
 				if (!pacman.hasWon() && *pacman.lives)
 				{
-					pacman.move(inputDir, map, dots, mapSize);
+					pacman.move(inputDir[count], map, dots, mapSize);
 
 					// Remove a dot if pacman is on one
 					if (map[pacman.getPos().y][pacman.getPos().x] == 7 || map[pacman.getPos().y][pacman.getPos().x] == 8)
@@ -138,6 +144,7 @@ void Game::update()
 						map[pacman.getPos().y][pacman.getPos().x] = 0;
 					}
 				}
+				count++;
 			}
 		}
 
@@ -171,13 +178,18 @@ void Game::update()
 		// End game
 		allWon = true;
 		livesRemain = false;
+		int count = 0;
 		for (auto& pacman : pacmen)
 		{
+			if (*pacman.lives)
+				count++;
 			if (!pacman.hasWon() && *pacman.lives)
 				allWon = false;
 			if (*pacman.lives)
 				livesRemain = true;
 		}
+		if (!count)
+			allWon = false;
 		if (!livesRemain || allWon)
 		{
 			if (overTimer == 5 * 60)
@@ -213,14 +225,13 @@ void Game::update()
 		for (auto& ghost : ghosts)
 		{
 			if (ghost->getTimer() > seen)
-				seen = ghost->getTimer();
+				if (pacmen[client].getPos() == ghost->getTarget())
+					seen = ghost->getTimer();
 
 			if (client != -1 && ghost->hasLOS())
 				if (pacmen[client].getPos() == ghost->getTarget())
 					los = true;
 		}
-
-		
 
 		if (client != -1)
 		{
@@ -240,7 +251,7 @@ void Game::update()
 
 			if (pacmen[client].getScore() > *hScore)
 				*hScore = pacmen[client].getScore();
-			scoreTxt.setString("SCORE " + std::to_string(pacmen[client].getScore()) + "+" + std::to_string((pacmen[client].hasWon() || !*lives[client]) ? pacmen[client].getBonusScore() : (pacmen[client].getBonusScore() / 60 * 500)));
+			scoreTxt.setString("SCORE " + std::to_string(pacmen[client].getScore()) + "+" + std::to_string((!livesRemain || allWon) ? pacmen[client].getBonusScore() : (pacmen[client].getBonusScore() / 60 * 500)));
 			hScoreTxt.setString("HIGH " + std::to_string(*hScore) + " LVL " + std::to_string(level + 1));
 		}
 
@@ -250,7 +261,8 @@ void Game::update()
 
 		// Light pacman
 		for (auto& pacman : pacmen)
-			recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight * overTimer / (5.f * 60), false);
+			if (*pacman.lives)
+				recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight * overTimer / (5.f * 60), false);
 
 		// Light portals
 		for (auto portal : portals)

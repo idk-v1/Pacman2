@@ -134,7 +134,7 @@ void Pacman::damage()
 	if (!damageTimer)
 	{
 		damageTimer = 3 * 60;
-		*lives = *lives - 1;
+		(*lives)--;
 	}
 }
 

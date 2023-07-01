@@ -29,6 +29,8 @@ public:
 
 	void load(std::string path, sf::Font& font);
 
+	void addTextElement(float x, float y, float fontSize, char align, std::string str, sf::Font& font);
+
 private:
 	std::vector<sf::RectangleShape> bElements;
 	std::vector<int> bPages, bFrames;
