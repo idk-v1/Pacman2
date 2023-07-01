@@ -8,7 +8,7 @@ class Pacman
 public:
 	Pacman();
 
-	void start(sf::Vector2i pos);
+	void start(sf::Vector2i pos, int* lives);
 
 	void move(int dir, std::vector<std::vector<char>>& map, int dots, sf::Vector2i mapSize);
 
@@ -35,6 +35,6 @@ private:
 	bool canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize);
 
 	sf::Vector2i pos, prog;
-	int speed = 7, dir = 3, damageTimer = 0;
+	int speed = 7, dir = 3, damageTimer = 0, *lives = NULL;
 	bool power = false, win = false;
 };

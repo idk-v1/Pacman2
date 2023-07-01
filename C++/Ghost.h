@@ -13,7 +13,7 @@ public:
 
 	void start(sf::Vector2i pos);
 
-	void move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>ghosts, sf::Vector2i mapSize, int& lives);
+	void move(std::vector<std::vector<char>>& map, std::vector<Pacman>& pacmen, std::vector<Ghost*>ghosts, sf::Vector2i mapSize);
 
 	sf::Vector2i getPos();
 
@@ -23,7 +23,7 @@ public:
 
 	int getDir();
 
-	void updateTarget(std::vector<std::vector<char>>& map, Pacman& pacman, sf::Vector2i mapSize);
+	void updateTarget(std::vector<std::vector<char>>& map, sf::Vector2i mapSize);
 
 	void setTimer(int value);
 
@@ -37,11 +37,15 @@ public:
 
 	void loseTarget();
 
+	virtual void assignPacman(int index);
+
 protected:
 
-	bool lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize, int& lives);
+	void turn(std::vector<std::vector<char>>& map, sf::Vector2i mapSize);
 
-	virtual void special(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize, int& lives);
+	bool lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize);
+
+	virtual void special(std::vector<std::vector<char>>& map, std::vector<Pacman>& pacmen, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize);
 
 	bool canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize);
 

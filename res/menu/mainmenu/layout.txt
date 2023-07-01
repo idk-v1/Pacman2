@@ -1,2 +1,3 @@
+T 14 10 2.0 C Pacman_2
 B 14 20 14 5 1 1 singleplayer.png
 B 14 25.5 14 5 1 3 multiplayer.png

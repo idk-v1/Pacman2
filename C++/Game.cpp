@@ -5,30 +5,31 @@ Game::Game()
 {
 }
 
-Game::Game(int num, int HUD, int lives, int score, sf::Font& font, int *hScore, int level)
+Game::Game(int num, int HUD, std::vector<int*>& lives, int score, sf::Font& font, int *hScore, int level)
 {
 	texture.loadFromFile("../res/textures/tilemap.png");
 	loadMap(num);
 
 	for (int i = 0; i < 3; i++)
 		ghosts.push_back(new ChaserGhost);
-	ghosts.push_back(new SignalGhost());
 
 	this->HUD = HUD;
-	this->lives = lives;
 	this->score = score;
 	this->hScore = hScore;
 	this->level = level;
+	this->lives = lives;
 
 	scoreTxt.setFont(font);
 	hScoreTxt.setFont(font);
-}
 
-
-void Game::start()
-{
 	timer.restart();
-	pacman.start(pacmanSpawn);
+	pacmen.push_back(Pacman());
+	for (int i = 0; i < pacmen.size(); i++)
+	{
+		pacmen[i].start(pacmanSpawn, lives[i]);
+		ghosts.push_back(new SignalGhost());
+		ghosts.back()->assignPacman(i);
+	}
 
 	if (failed)
 		for (int i = 0; i < 4 - ghosts.size(); i++)
@@ -48,7 +49,7 @@ void Game::start()
 void Game::update()
 {
 	int seen, randX, randY;
-	bool los, onPortal;
+	bool los, onPortal, livesRemain, allWon;
 
 	lag += timer.restart().asMilliseconds();
 
@@ -91,15 +92,15 @@ void Game::update()
 		if (startTimer)
 		{
 			startTimer--;
-			pacman.setDir(inputDir);
+			pacmen[0].setDir(inputDir);
 		}
 		else
 		{
 			// Update ghosts
 			for (auto& ghost : ghosts)
 			{
-				ghost->updateTarget(map, pacman, mapSize);
-				ghost->move(map, pacman, ghosts, mapSize, lives);
+				ghost->updateTarget(map, mapSize);
+				ghost->move(map, pacmen, ghosts, mapSize);
 			}
 
 			if (inputTimer)
@@ -108,27 +109,30 @@ void Game::update()
 				inputDir = -1;
 
 			// Update pacman
-			pacman.move(inputDir, map, dots, mapSize);
-
-			// Remove a dot if pacman is on one
-			if (map[pacman.getPos().y][pacman.getPos().x] == 7 || map[pacman.getPos().y][pacman.getPos().x] == 8)
+			for (auto& pacman : pacmen)
 			{
-				// Power up pacman if dot is powerup
-				if (map[pacman.getPos().y][pacman.getPos().x] == 8)
+				pacman.move(inputDir, map, dots, mapSize);
+
+				// Remove a dot if pacman is on one
+				if (map[pacman.getPos().y][pacman.getPos().x] == 7 || map[pacman.getPos().y][pacman.getPos().x] == 8)
 				{
-					pacman.setPower();
-					for (auto& ghost : ghosts)
-						ghost->loseTarget();
-					score += 40;
+					// Power up pacman if dot is powerup
+					if (map[pacman.getPos().y][pacman.getPos().x] == 8)
+					{
+						pacman.setPower();
+						for (auto& ghost : ghosts)
+							ghost->loseTarget();
+						score += 40;
+					}
+					score += 10;
+					dots--;
+					dotProg += 100;
+					mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 0].texCoords = { 0,  0 };
+					mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 1].texCoords = { 32,  0 };
+					mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 2].texCoords = { 32, 32 };
+					mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 3].texCoords = { 0, 32 };
+					map[pacman.getPos().y][pacman.getPos().x] = 0;
 				}
-				score += 10;
-				dots--;
-				dotProg += 100;
-				mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 0].texCoords = { 0,  0 };
-				mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 1].texCoords = { 32,  0 };
-				mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 2].texCoords = { 32, 32 };
-				mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 3].texCoords = { 0, 32 };
-				map[pacman.getPos().y][pacman.getPos().x] = 0;
 			}
 		}
 
@@ -155,12 +159,21 @@ void Game::update()
 
 		// Dot bar animation
 		if (dotProg > 0)
-			dotProg -= 7 * (1 + pacman.getPower());
+			dotProg -= 7 * (1 + pacmen[0].getPower());
 		if (dotProg < 0)
 			dotProg++;
 
 		// End game
-		if (!lives || pacman.hasWon())
+		allWon = true;
+		livesRemain = false;
+		for (int i = 0; i < pacmen.size(); i++)
+		{
+			if (!pacmen[i].hasWon() && *lives[i])
+				allWon = false;
+			if (*lives[i])
+				livesRemain = true;
+		}
+		if (!livesRemain || allWon)
 		{
 			if (overTimer == 5 * 60)
 				bonusScore = bonusScore / 60 * 500;
@@ -173,7 +186,7 @@ void Game::update()
 			if (bonusScore)
 			{
 				bonusScore -= 50;
-				if (lives)
+				if (livesRemain)
 					score += 50;
 			}
 		}
@@ -202,7 +215,7 @@ void Game::update()
 			bonusScore--;
 
 		// Warning animation
-		if (seen && !pacman.getPower())
+		if (seen && !pacmen[0].getPower())
 		{
 			if (seenTimer < 127 && !los)
 				seenTimer++;
@@ -216,7 +229,7 @@ void Game::update()
 		if (score > *hScore)
 			*hScore = score;
 
-		scoreTxt.setString("SCORE " + std::to_string(score) + "+" + std::to_string((pacman.hasWon() || !lives) ? bonusScore : (bonusScore / 60 * 500)));
+		scoreTxt.setString("SCORE " + std::to_string(score) + "+" + std::to_string((pacmen[0].hasWon() || !*lives[0]) ? bonusScore : (bonusScore / 60 * 500)));
 		hScoreTxt.setString("HIGH " + std::to_string(*hScore) + " LVL " + std::to_string(level + 1));
 
 		if (!dots && portalTimer < 60)
@@ -224,7 +237,8 @@ void Game::update()
 
 
 		// Light pacman
-		recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight * overTimer / (5.f * 60), false);
+		for (auto& pacman : pacmen)
+			recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight * overTimer / (5.f * 60), false);
 
 		// Light portals
 		for (auto portal : portals)
@@ -269,80 +283,83 @@ void Game::draw(sf::RenderWindow& window)
 	window.draw(mapVert, &texture);
 
 	// Draws pacman if alive
-	if (lives && !pacman.hasWon())
+	for (auto& pacman : pacmen)
 	{
-		rect.setSize(sf::Vector2f(scale, scale));
+		if (&lives[0] && !pacman.hasWon())
+		{
+			rect.setSize(sf::Vector2f(scale, scale));
 
-		// Blinks when invincible
-		if (pacman.getDamageTimer() / 6 % 2)
-			rect.setFillColor(sf::Color(0xAAAA00FF));
-		else
-			rect.setFillColor(sf::Color(0xFFFF00FF));
+			// Blinks when invincible
+			if (pacman.getDamageTimer() / 6 % 2)
+				rect.setFillColor(sf::Color(0xAAAA00FF));
+			else
+				rect.setFillColor(sf::Color(0xFFFF00FF));
 
-		// Draws a duplicate pacman in the opposite portal
-		if (pacman.getPos().x == 0)
-		{
-			rect.setPosition(
-				xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
-				yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-			window.draw(rect);
-			if (dots)
-			{
-				rect.setPosition(
-					xoff + (mapSize.x + pacman.getProg().x / 100.f) * scale,
-					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-				window.draw(rect);
-			}
-		}
-		else if (pacman.getPos().x == mapSize.x - 1)
-		{
-			if (dots)
-			{
-				rect.setPosition(
-					xoff + (-1 + pacman.getProg().x / 100.f) * scale,
-					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-				window.draw(rect);
-			}
-			rect.setPosition(
-				xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale, 
-				yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-			window.draw(rect);
-		}
-		else if (pacman.getPos().y == 0)
-		{
-			rect.setPosition(
-				xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
-				yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-			window.draw(rect);
-			if (dots)
+			// Draws a duplicate pacman in the opposite portal
+			if (pacman.getPos().x == 0)
 			{
 				rect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
-					yoff + (mapSize.y + pacman.getProg().y / 100.f) * scale);
+					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
+				window.draw(rect);
+				if (dots)
+				{
+					rect.setPosition(
+						xoff + (mapSize.x + pacman.getProg().x / 100.f) * scale,
+						yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
+					window.draw(rect);
+				}
+			}
+			else if (pacman.getPos().x == mapSize.x - 1)
+			{
+				if (dots)
+				{
+					rect.setPosition(
+						xoff + (-1 + pacman.getProg().x / 100.f) * scale,
+						yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
+					window.draw(rect);
+				}
+				rect.setPosition(
+					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
+					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 				window.draw(rect);
 			}
-		}
-		else if (pacman.getPos().y == mapSize.y - 1)
-		{
-			if (dots)
+			else if (pacman.getPos().y == 0)
 			{
 				rect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
-					yoff + (-1 + pacman.getProg().y / 100.f) * scale);
+					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
+				window.draw(rect);
+				if (dots)
+				{
+					rect.setPosition(
+						xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
+						yoff + (mapSize.y + pacman.getProg().y / 100.f) * scale);
+					window.draw(rect);
+				}
+			}
+			else if (pacman.getPos().y == mapSize.y - 1)
+			{
+				if (dots)
+				{
+					rect.setPosition(
+						xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
+						yoff + (-1 + pacman.getProg().y / 100.f) * scale);
+					window.draw(rect);
+				}
+				rect.setPosition(
+					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
+					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 				window.draw(rect);
 			}
-			rect.setPosition(
-				xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
-				yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-			window.draw(rect);
-		}
-		// Draws pacman normally
-		else
-		{
-			rect.setPosition(
-				xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale, 
-				yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-			window.draw(rect);
+			// Draws pacman normally
+			else
+			{
+				rect.setPosition(
+					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
+					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
+				window.draw(rect);
+			}
 		}
 	}
 
@@ -394,7 +411,7 @@ void Game::draw(sf::RenderWindow& window)
 	// Draws remaining lives
 	rect.setFillColor(sf::Color(0xFFFF00FF));
 	rect.setSize(sf::Vector2f(scale / 3.f * 2, scale / 3.f * 2));
-	for (int i = 0; i < lives - 1; i++)
+	for (int i = 0; i < *lives[0] - 1; i++)
 	{
 		rect.setPosition(xoff + (i * 2 + 1.f / 6 + 1) * scale, yHUDOff + scale / 6.f);
 		window.draw(rect);
@@ -428,8 +445,12 @@ void Game::drawDebug(sf::RenderWindow& window)
 
 	// Draws pacman hitbox
 	rect.setFillColor(sf::Color(0xFFFF0088));
-	rect.setPosition(xoff + pacman.getPos().x * scale, yoff + pacman.getPos().y * scale);
-	window.draw(rect);
+	for (int i = 0; i < lives.size(); i++)
+	{
+		if (lives[i])
+		rect.setPosition(xoff + pacmen[i].getPos().x * scale, yoff + pacmen[i].getPos().y * scale);
+		window.draw(rect);
+	}
 
 	for (auto& ghost : ghosts)
 	{
@@ -475,21 +496,11 @@ void Game::setLightScale(int newScale)
 	}
 
 	maxLight = lightScale * lightRange;
-
-	recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight, false);
-
-	for (auto& portal : portals)
-		recLight(map, light, lightVert, portal.x * lightScale, portal.y * lightScale, maxLight / 2, false);
 }
 
 bool Game::isOver()
 {
 	return !overTimer;
-}
-
-int Game::getLives()
-{
-	return lives;
 }
 
 int Game::getScore()

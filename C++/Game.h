@@ -11,6 +11,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <string>
+#include <vector>
 
 #pragma once
 class Game
@@ -18,9 +19,7 @@ class Game
 public:
 	Game();
 
-	Game(int num, int HUD, int lives, int score, sf::Font& font, int *hScore, int level);
-
-	void start();
+	Game(int num, int HUD, std::vector<int*>& lives, int score, sf::Font& font, int *hScore, int level);
 
 	void update();
 
@@ -32,8 +31,6 @@ public:
 
 	bool isOver();
 
-	int getLives();
-
 	int getScore();
 
 private:
@@ -44,19 +41,19 @@ private:
 	std::vector<std::vector<char>> map, light;
 
 	std::vector<Ghost*> ghosts;
+	std::vector<Pacman> pacmen;
+	std::vector<int*> lives;
 
 	std::vector<sf::Vector2f> portals;
 
 	sf::Text scoreTxt, hScoreTxt;
-
-	Pacman pacman;
 
 	sf::Clock timer;
 
 	int scale = 0, oldScale = 0, xoff = 0, yoff = 0, yHUDOff = 0,
 		lightScale = 3, lightRange = 10, maxLight = lightScale * lightRange,
 		lag = 0, overTimer = 5 * 60, startTimer = 3 * 60, seenTimer = 0, portalTimer = 0,
-		HUD, lives = 3, score = 0, *hScore = NULL, bonusScore = 10 * 60, level = 0,
+		HUD = 0, score = 0, *hScore = NULL, bonusScore = 10 * 60, level = 0,
 		dots = 0, maxDots = 0, dotProg = 0, inputTimer = 0, inputDir = -1;
 
 	float inputBuffer = 0.5f;

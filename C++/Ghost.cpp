@@ -19,60 +19,15 @@ void Ghost::start(sf::Vector2i pos)
 	hasLineOfSight = false;
 }
 
-void Ghost::move(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>ghosts, sf::Vector2i mapSize, int& lives)
+void Ghost::move(std::vector<std::vector<char>>& map, std::vector<Pacman>& pacmen, std::vector<Ghost*>ghosts, sf::Vector2i mapSize)
 {
-	int minDist, dir, value;
-
 	for (int i = 0; i < speed / ((slowTimer != 0) + 1) * (1 + firstTarget * 0.5f); i++)
 	{
-		minDist = 999;
-		dir = -1;
-
 		if (isFree)
 		{
-			special(map, pacman, ghosts, mapSize, lives);
+			special(map, pacmen, ghosts, mapSize);
 
-			if (!prog.x && !prog.y)
-			{
-				if (this->dir != 2 && canMove(pos.x, pos.y - 1, map, mapSize))
-				{
-					value = sqrt(pow(pos.x - target.x, 2) + pow(pos.y - 1 - target.y, 2));
-					if (value < minDist)
-					{
-						dir = 0;
-						minDist = value;
-					}
-				}
-				if (this->dir != 3 && canMove(pos.x + 1, pos.y, map, mapSize))
-				{
-					value = sqrt(pow(pos.x + 1 - target.x, 2) + pow(pos.y - target.y, 2));
-					if (value < minDist)
-					{
-						dir = 1;
-						minDist = value;
-					}
-				}
-				if (this->dir != 0 && canMove(pos.x, pos.y + 1, map, mapSize))
-				{
-					value = sqrt(pow(pos.x - target.x, 2) + pow(pos.y + 1 - target.y, 2));
-					if (value < minDist)
-					{
-						dir = 2;
-						minDist = value;
-					}
-				}
-				if (this->dir != 1 && canMove(pos.x - 1, pos.y, map, mapSize))
-				{
-					value = sqrt(pow(pos.x - 1 - target.x, 2) + pow(pos.y - target.y, 2));
-					if (value < minDist)
-					{
-						dir = 3;
-						minDist = value;
-					}
-				}
-				if (dir != -1 && this->dir != dir)
-					this->dir = dir;
-			}
+			turn(map, mapSize);
 
 			switch (this->dir)
 			{
@@ -154,7 +109,54 @@ int Ghost::getDir()
 	return dir;
 }
 
-bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize, int& lives)
+void Ghost::turn(std::vector<std::vector<char>>& map, sf::Vector2i mapSize)
+{
+	int minDist = 999, dir = -1, value;
+
+	if (!prog.x && !prog.y)
+	{
+		if (this->dir != 2 && canMove(pos.x, pos.y - 1, map, mapSize))
+		{
+			value = sqrt(pow(pos.x - target.x, 2) + pow(pos.y - 1 - target.y, 2));
+			if (value < minDist)
+			{
+				dir = 0;
+				minDist = value;
+			}
+		}
+		if (this->dir != 3 && canMove(pos.x + 1, pos.y, map, mapSize))
+		{
+			value = sqrt(pow(pos.x + 1 - target.x, 2) + pow(pos.y - target.y, 2));
+			if (value < minDist)
+			{
+				dir = 1;
+				minDist = value;
+			}
+		}
+		if (this->dir != 0 && canMove(pos.x, pos.y + 1, map, mapSize))
+		{
+			value = sqrt(pow(pos.x - target.x, 2) + pow(pos.y + 1 - target.y, 2));
+			if (value < minDist)
+			{
+				dir = 2;
+				minDist = value;
+			}
+		}
+		if (this->dir != 1 && canMove(pos.x - 1, pos.y, map, mapSize))
+		{
+			value = sqrt(pow(pos.x - 1 - target.x, 2) + pow(pos.y - target.y, 2));
+			if (value < minDist)
+			{
+				dir = 3;
+				minDist = value;
+			}
+		}
+		if (dir != -1 && this->dir != dir)
+			this->dir = dir;
+	}
+}
+
+bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize)
 {
 	if (pos.x == pacman.getPos().x && pos.y == pacman.getPos().y)
 	{
@@ -162,10 +164,7 @@ bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std
 		{
 			start(spawn);
 			if (!pacman.getDamageTimer())
-			{
 				pacman.damage();
-				lives--;
-			}
 			for (auto& ghost : ghosts)
 				ghost->slow();
 		}
@@ -208,11 +207,11 @@ bool Ghost::lineOfSight(std::vector<std::vector<char>>& map, Pacman& pacman, std
 	return false;
 }
 
-void Ghost::special(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize, int& lives)
+void Ghost::special(std::vector<std::vector<char>>& map, std::vector<Pacman>& pacmen, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize)
 {
 }
 
-void Ghost::updateTarget(std::vector<std::vector<char>>& map, Pacman& pacman, sf::Vector2i mapSize)
+void Ghost::updateTarget(std::vector<std::vector<char>>& map, sf::Vector2i mapSize)
 {
 	if (target == pos)
 	{
@@ -227,7 +226,7 @@ void Ghost::updateTarget(std::vector<std::vector<char>>& map, Pacman& pacman, sf
 		if (canMove(target.x, target.y, map, mapSize))
 			hasTarget = true;
 		else
-			updateTarget(map, pacman, mapSize);
+			updateTarget(map, mapSize);
 	}
 }
 
@@ -260,6 +259,10 @@ bool Ghost::hasLOS()
 void Ghost::loseTarget()
 {
 	hasTarget = false;
+}
+
+void Ghost::assignPacman(int index)
+{
 }
 
 bool Ghost::canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize)

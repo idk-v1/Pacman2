@@ -5,22 +5,29 @@ ChaserGhost::ChaserGhost()
 	color = sf::Color(0x8888FFFF);
 }
 
-void ChaserGhost::special(std::vector<std::vector<char>>& map, Pacman& pacman, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize, int& lives)
+void ChaserGhost::special(std::vector<std::vector<char>>& map, std::vector<Pacman>& pacmen, std::vector<Ghost*>& ghosts, sf::Vector2i mapSize)
 {
-	if (lineOfSight(map, pacman, ghosts, mapSize, lives) && !pacman.getPower() && isFree)
-	{
-		setTimer(2 * 60);
-		hasLineOfSight = true;
-	}
-	else
-		hasLineOfSight = false;
+	hasLineOfSight = false;
 
-	if (timer && !firstTarget)
+	for (auto& pacman : pacmen)
 	{
-		hasTarget = true;
-		target = pacman.getPos();
-		speed = defSpeed + 2 + hasLineOfSight * 3;
+		if (lineOfSight(map, pacman, ghosts, mapSize) && !pacman.getPower() && isFree)
+		{
+			setTimer(2 * 60);
+			hasLineOfSight = true;
+		}
+
+		if (timer && !firstTarget)
+		{
+			hasTarget = true;
+			target = pacman.getPos();
+			speed = defSpeed + 2 + hasLineOfSight * 3;
+		}
+		else
+			speed = defSpeed;
 	}
-	else
-		speed = defSpeed;
+}
+
+void ChaserGhost::assignPacman(int index)
+{
 }

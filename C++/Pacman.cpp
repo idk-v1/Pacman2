@@ -4,15 +4,15 @@ Pacman::Pacman()
 {
 }
 
-void Pacman::start(sf::Vector2i pos)
+void Pacman::start(sf::Vector2i pos, int* lives)
 {
 	this->pos = pos;
 	prog.x = 50;
+	this->lives = lives;
 }
 
 void Pacman::move(int dir, std::vector<std::vector<char>>& map, int dots, sf::Vector2i mapSize)
 {
-
 	for (int i = 0; i < speed * (1 + (power || !dots)); i++)
 	{
 		if (!prog.x && !prog.y)
@@ -129,7 +129,10 @@ int Pacman::getDir()
 void Pacman::damage()
 {
 	if (!damageTimer)
+	{
 		damageTimer = 3 * 60;
+		*lives = *lives - 1;
+	}
 }
 
 int Pacman::getDamageTimer()
