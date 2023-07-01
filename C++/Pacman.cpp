@@ -109,6 +109,9 @@ void Pacman::move(int dir, std::vector<std::vector<char>>& map, int dots, sf::Ve
 		if (!damageTimer)
 			power = false;
 	}
+
+	if (win)
+		damageTimer = 1;
 }
 
 sf::Vector2i Pacman::getPos()
@@ -160,6 +163,45 @@ void Pacman::setDir(int dir)
 {
 	if (dir == 1 || dir == 3)
 		this->dir = dir;
+}
+
+int Pacman::getScore()
+{
+	return score;
+}
+
+void Pacman::setScore(int value)
+{
+	score = value;
+}
+
+void Pacman::addScore(int value)
+{
+	score += value;
+}
+
+int Pacman::getBonusScore()
+{
+	return bonusScore;
+}
+
+void Pacman::subtractBonus()
+{
+	bonusScore--;
+	if (bonusScore < 0)
+		bonusScore = 0;
+}
+
+void Pacman::subtractBonus(int value)
+{
+	bonusScore -= value;
+	if (bonusScore < 0)
+		bonusScore = 0;
+}
+
+void Pacman::endBonus()
+{
+	bonusScore = bonusScore / 60 * 500;
 }
 
 bool Pacman::canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize)

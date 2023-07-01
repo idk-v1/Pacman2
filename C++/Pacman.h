@@ -30,11 +30,27 @@ public:
 
 	void setDir(int dir);
 
+	int getScore();
+
+	void setScore(int value);
+
+	void addScore(int value);
+
+	int getBonusScore();
+
+	void subtractBonus();
+
+	void subtractBonus(int value);
+
+	void endBonus();
+
+	int* lives = NULL;
+
 private:
 
 	bool canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize);
 
 	sf::Vector2i pos, prog;
-	int speed = 7, dir = 3, damageTimer = 0, *lives = NULL;
+	int speed = 7, dir = 3, damageTimer = 0, score = 0, bonusScore = 60 * 10;
 	bool power = false, win = false;
 };

@@ -48,7 +48,7 @@ int main()
 	for (int i = 1; i < numMaps; i++)
 		maps.push_back(i);
 
-	std::vector<int> lives;
+	std::vector<int> lives, scores;
 	std::vector<int*> livesPtr;
 
 	std::ifstream fileIn;
@@ -68,7 +68,8 @@ int main()
 	multiplayer.load("../res/menu/multiplayer", font);
 
 	Game game;
-	MultiplayerGame mpGame;
+
+	int numPacmen = 1;
 
 	int numPlayers = 1, connection = 0;
 	unsigned short port;
@@ -107,12 +108,14 @@ int main()
 		case 1: // Singleplayer
 			if (changeMenu)
 			{
+				for (int i = 0; i < numPacmen; i++)
+					scores.push_back(0);
 				lives.push_back(3);
 				livesPtr.push_back(&lives.back());
 				gameover.setElementPage(0, 1);
 				level = 0;
 				score = 0;
-				game = Game(0, HUD, livesPtr, 0, font, &hScore, 0);
+				game = Game(0, HUD, livesPtr, scores, font, &hScore, 0, 0);
 			}
 			game.update();
 			game.draw(window);
@@ -126,9 +129,10 @@ int main()
 				for (auto& life : lives)
 					if (life)
 						livesRemaining = true;
-				score = game.getScore();
+				for (int i = 0; i < numPacmen; i++)
+					scores[i] = game.getScore(i);
 				if (livesRemaining)
-					game = Game(getRandMap(maps), HUD, livesPtr, score, font, &hScore, ++level);
+					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0);
 				else
 				{
 					lives.clear();
@@ -136,7 +140,7 @@ int main()
 					menuState = 2;
 					gameover.setElementText(4, std::to_string(level + 1));
 					gameover.setElementText(5, std::to_string(hScore));
-					gameover.setElementText(6, std::to_string(score));
+					gameover.setElementText(6, std::to_string(scores[0]));
 					if (hScore > hScoreOrigin)
 						save(hScore);
 				}
@@ -170,36 +174,6 @@ int main()
 
 			break;
 		case 6: // Multiplayer Game
-			if (changeMenu)
-			{
-				gameover.setElementPage(0, 6);
-				for (int i = 0; i < numPlayers; i++)
-					lives.push_back(3);
-				level = 0;
-				score = 0;
-				mpGame = MultiplayerGame(0, HUD, 3, 0, font, &hScore, 0, numPlayers);
-			}
-			mpGame.update();
-			mpGame.draw(window);
-#if !defined(NDEBUG)
-			mpGame.drawDebug(window);
-#endif
-
-			if (mpGame.isOver())
-			{
-				score = mpGame.getScore();
-				if (0)
-					mpGame = MultiplayerGame(getRandMap(maps), HUD, 3, score, font, &hScore, ++level, numPlayers);
-				else
-				{
-					menuState = 2;
-					gameover.setElementText(4, std::to_string(level + 1));
-					gameover.setElementText(5, std::to_string(hScore));
-					gameover.setElementText(6, std::to_string(score));
-					if (hScore > hScoreOrigin)
-						save(hScore);
-				}
-			}
 			break;
 		}
 		changeMenu = menuState != lastMenuState;
