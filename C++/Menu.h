@@ -31,6 +31,8 @@ public:
 
 	void addTextElement(float x, float y, float fontSize, char align, std::string str, sf::Font& font);
 
+	void clear();
+
 	void rescale(sf::RenderWindow& window);
 
 private:

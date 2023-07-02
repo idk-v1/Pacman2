@@ -190,6 +190,27 @@ void Menu::addTextElement(float x, float y, float fontSize, char align, std::str
 	}
 }
 
+void Menu::clear()
+{
+	bElements.clear();
+	bPages.clear();
+	bFrames.clear();
+	bCoords.clear();
+	bTextures.clear();
+
+	tElements.clear();
+	tCoords.clear();
+	tFontSize.clear();
+	tAlign.clear();
+
+	selected = -1; 
+	lastSelected = -1;
+	animation = 0; 
+	scale = 0;
+	lastScale = -1;
+	lag = 0;
+}
+
 void Menu::rescale(sf::RenderWindow& window)
 {
 	for (int i = 0; i < bElements.size(); i++)

@@ -20,7 +20,7 @@ void clientUpdate(sf::UdpSocket& sock, sf::IpAddress& hostIP, sf::Packet& receiv
 
 bool clientConnect(sf::UdpSocket& sock, sf::IpAddress& hostIP, unsigned short& port);
 
-void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted, bool& newConnection);
+void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<unsigned short> clientPorts, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted, bool& newConnection);
 
 bool hostConnect(sf::UdpSocket& sock, unsigned short& port);
 
@@ -78,6 +78,7 @@ int main()
 	unsigned short port;
 	bool connected = false;
 	std::vector<sf::IpAddress> clients;
+	std::vector<unsigned short> clientPorts;
 	sf::UdpSocket sock;
 	sf::IpAddress hostIP, ip;
 	sf::Packet hostData;
@@ -121,11 +122,14 @@ int main()
 					lives.push_back(3);
 					livesPtr.push_back(&lives[i]);
 				}
-				gameover.setElementPage(0, 1);
 				level = 0;
 				score = 0;
 				game = Game(0, HUD, livesPtr, scores, font, &hScore, level, 0, numPacmen, numGhosts, false);
 				gameStarted = true;
+
+				gameover.clear();
+				gameover.load("../res/menu/gameover", font);
+				gameover.setElementPage(0, 1);
 			}
 			game.update();
 			game.draw(window);
@@ -199,7 +203,7 @@ int main()
 			else
 			{
 				bool newConnection = false;
-				hostUpdate(sock, clients, clientData, port, gameStarted, newConnection);
+				hostUpdate(sock, clients, clientPorts, clientData, port, gameStarted, newConnection);
 				if (newConnection)
 				{
 					hostCTRL.addTextElement(8, 7 + clients.size(), 0.75, 'R', clients.back().toString(), font);
@@ -225,11 +229,14 @@ int main()
 					lives.push_back(3);
 					livesPtr.push_back(&lives[i]);
 				}
-				gameover.setElementPage(0, 6);
 				level = 0;
 				score = 0;
 				game = Game(0, HUD, livesPtr, scores, font, &hScore, level, 0, numPacmen, numGhosts, true);
 				gameStarted = true;
+
+				gameover.clear();
+				gameover.load("../res/menu/gameover", font);
+				gameover.setElementPage(0, 6);
 			}
 			game.update();
 			game.draw(window);
@@ -296,7 +303,7 @@ void clientUpdate(sf::UdpSocket& sock, sf::IpAddress& hostIP, sf::Packet& receiv
 	if (!connected)
 	{
 		sf::Packet send;
-		send << sf::IpAddress::getLocalAddress().toString();
+		send << sf::IpAddress::getLocalAddress().toString() << sock.getLocalPort();
 		sock.send(send, hostIP, 50001);
 
 		receive.clear();
@@ -317,9 +324,9 @@ bool clientConnect(sf::UdpSocket& sock, sf::IpAddress& hostIP, unsigned short& p
 {
 	std::string ipString;
 
-	port = 50002;
-	if (sock.bind(port) == sf::UdpSocket::Done)
+	if (sock.bind(sock.AnyPort) == sf::UdpSocket::Done)
 	{
+		port = sock.getLocalPort();
 		sock.setBlocking(false);
 		std::cout << "Started\n";
 	}
@@ -341,7 +348,7 @@ bool clientConnect(sf::UdpSocket& sock, sf::IpAddress& hostIP, unsigned short& p
 		return true;
 }
 
-void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted, bool& newConnection)
+void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<unsigned short> clientPorts, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted, bool& newConnection)
 {
 	if (!gameStarted)
 	{
@@ -350,19 +357,22 @@ void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std:
 		if (sock.receive(clientIP, any, port) == sf::UdpSocket::Done)
 		{
 			bool newAddress = true;
-			std::string data;
-			clientIP >> data;
-			for (auto& ip : clientsIP)
-				if (data == ip.toString())
+			std::string inAddr;
+			unsigned short inPort;
+			clientIP >> inAddr;
+			clientIP >> inPort;
+			for (int i = 0; i < clientsIP.size(); i++)
+				if (inAddr == clientsIP[i].toString() && inPort == clientPorts[i])
 					newAddress = false;
 			if (newAddress)
 			{
 				newConnection = true;
-				clientsIP.push_back(sf::IpAddress(data));
+				clientsIP.push_back(sf::IpAddress(inAddr));
+				clientPorts.push_back(inPort);
 				sf::Packet send;
 				send << 1;
-				sock.send(send, clientsIP.back(), 50002);
-				std::cout << data << " Joined!\n";
+				sock.send(send, inAddr, inPort);
+				std::cout << inAddr << ' ' << inPort << " Joined!\n";
 			}
 		}
 	}
