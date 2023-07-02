@@ -194,6 +194,7 @@ int main()
 			{
 				if (hostConnect(sock, port))
 					connection = 2;
+				hostCTRL.setElementText(0, sf::IpAddress::getLocalAddress().toString());
 			}
 			else
 			{
