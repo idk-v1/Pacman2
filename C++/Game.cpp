@@ -5,7 +5,7 @@ Game::Game()
 {
 }
 
-Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum, int pacmenNum, int ghostNum)
+Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum, int pacmenNum, int ghostNum, bool sharedCTRL)
 {
 	texture.loadFromFile("../res/textures/tilemap.png");
 	loadMap(num);
@@ -18,9 +18,11 @@ Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, 
 	this->hScore = hScore;
 	this->level = level;
 	this->lives = lives;
+	this->sharedCTRL = sharedCTRL;
 	client = clientNum;
 
 	scoreTxt.setFont(font);
+	scoreTxt2.setFont(font);
 	hScoreTxt.setFont(font);
 
 	timer.restart();
@@ -53,29 +55,76 @@ Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, 
 void Game::update()
 {
 	int seen, randX, randY;
-	bool los, onPortal, livesRemain, allWon;
+	bool los, los2, onPortal, livesRemain, allWon, power;
 
 	lag += timer.restart().asMilliseconds();
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+	if (sharedCTRL)
 	{
-		inputTimer[client] = 60 * inputBuffer;
-		inputDir[client] = 0;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		{
+			inputTimer[client] = 60 * inputBuffer;
+			inputDir[client] = 0;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			inputTimer[client] = 60 * inputBuffer;
+			inputDir[client] = 1;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			inputTimer[client] = 60 * inputBuffer;
+			inputDir[client] = 2;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			inputTimer[client] = 60 * inputBuffer;
+			inputDir[client] = 3;
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		{
+			inputTimer[client + 1] = 60 * inputBuffer;
+			inputDir[client + 1] = 0;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		{
+			inputTimer[client + 1] = 60 * inputBuffer;
+			inputDir[client + 1] = 1;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		{
+			inputTimer[client + 1] = 60 * inputBuffer;
+			inputDir[client + 1] = 2;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		{
+			inputTimer[client + 1] = 60 * inputBuffer;
+			inputDir[client + 1] = 3;
+		}
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+	else
 	{
-		inputTimer[client] = 60 * inputBuffer;
-		inputDir[client] = 1;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-	{
-		inputTimer[client] = 60 * inputBuffer;
-		inputDir[client] = 2;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-	{
-		inputTimer[client] = 60 * inputBuffer;
-		inputDir[client] = 3;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		{
+			inputTimer[client] = 60 * inputBuffer;
+			inputDir[client] = 0;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		{
+			inputTimer[client] = 60 * inputBuffer;
+			inputDir[client] = 1;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		{
+			inputTimer[client] = 60 * inputBuffer;
+			inputDir[client] = 2;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		{
+			inputTimer[client] = 60 * inputBuffer;
+			inputDir[client] = 3;
+		}
 	}
 
 	// Changes light detail keys 1 - 9
@@ -89,8 +138,9 @@ void Game::update()
 		lag -= 1000 / 60;
 
 		seen = 0;
-		los = false;
+		los = false, los2 = false;
 		onPortal = false;
+		power = true;
 
 		// Wait 3 seconds
 		if (startTimer)
@@ -171,7 +221,7 @@ void Game::update()
 
 		// Dot bar animation
 		if (dotProg > 0)
-			dotProg -= 7;
+			dotProg -= 7 * std::ceil(dotProg / 100);
 		if (dotProg < 0)
 			dotProg++;
 
@@ -194,7 +244,11 @@ void Game::update()
 		{
 			if (overTimer == 5 * 60)
 				if (client != -1)
+				{
 					pacmen[client].endBonus();
+					if (sharedCTRL)
+						pacmen[client + 1].endBonus();
+				}
 			if (overTimer)
 				overTimer--;
 			for (auto& ghost : ghosts)
@@ -202,12 +256,23 @@ void Game::update()
 			ghosts.clear();
 			startTimer = 1;
 			if (client != -1)
+			{
 				if (pacmen[client].getBonusScore())
 				{
 					pacmen[client].subtractBonus(50);
 					if (*pacmen[client].lives)
 						pacmen[client].addScore(50);
 				}
+				if (sharedCTRL)
+				{
+					if (pacmen[client + 1].getBonusScore())
+					{
+						pacmen[client + 1].subtractBonus(50);
+						if (*pacmen[client + 1].lives)
+							pacmen[client + 1].addScore(50);
+					}
+				}
+			}
 		}
 
 		// Resets light
@@ -225,20 +290,33 @@ void Game::update()
 		for (auto& ghost : ghosts)
 		{
 			if (ghost->getTimer() > seen)
-				if (pacmen[client].getPos() == ghost->getTarget())
-					seen = ghost->getTimer();
+				seen = ghost->getTimer();
 
 			if (client != -1 && ghost->hasLOS())
+			{
 				if (pacmen[client].getPos() == ghost->getTarget())
 					los = true;
+				if (sharedCTRL)
+					if (pacmen[client + 1].getPos() == ghost->getTarget())
+						los2 = true;
+			}
 		}
 
 		if (client != -1)
 		{
 			if (los)
 				pacmen[client].subtractBonus();
+			if (sharedCTRL)
+				if (los2)
+					pacmen[client + 1].subtractBonus();
+
 			// Warning animation
-			if (seen && !pacmen[client].getPower())
+			if (!pacmen[client].getPower())
+				power = false;
+			if (sharedCTRL)
+				if (!pacmen[client + 1].getPower())
+					power = false;
+			if (seen && !power)
 			{
 				if (seenTimer < 127 && !los)
 					seenTimer++;
@@ -251,7 +329,13 @@ void Game::update()
 
 			if (pacmen[client].getScore() > *hScore)
 				*hScore = pacmen[client].getScore();
+			if (sharedCTRL)
+				if (pacmen[client + 1].getScore() > *hScore)
+				*hScore = pacmen[client + 1].getScore();
+
 			scoreTxt.setString("SCORE " + std::to_string(pacmen[client].getScore()) + "+" + std::to_string((!livesRemain || allWon) ? pacmen[client].getBonusScore() : (pacmen[client].getBonusScore() / 60 * 500)));
+			if (sharedCTRL)
+				scoreTxt2.setString("SCORE " + std::to_string(pacmen[client + 1].getScore()) + "+" + std::to_string((!livesRemain || allWon) ? pacmen[client + 1].getBonusScore() : (pacmen[client + 1].getBonusScore() / 60 * 500)));
 			hScoreTxt.setString("HIGH " + std::to_string(*hScore) + " LVL " + std::to_string(level + 1));
 		}
 
@@ -260,9 +344,14 @@ void Game::update()
 
 
 		// Light pacman
-		for (auto& pacman : pacmen)
-			if (*pacman.lives)
-				recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight * overTimer / (5.f * 60), false);
+		if (sharedCTRL)
+		{
+			for (auto& pacman : pacmen)
+				if (*pacman.lives)
+					recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight, false);
+		}
+		else
+			recLight(map, light, lightVert, (pacmen[client].getPos().x + pacmen[client].getProg().x / 100.f + 0.5f) * lightScale, (pacmen[client].getPos().y + pacmen[client].getProg().y / 100.f + 0.5f) * lightScale, maxLight, false);
 
 		// Light portals
 		for (auto portal : portals)
@@ -442,11 +531,19 @@ void Game::draw(sf::RenderWindow& window)
 			rect.setPosition(xoff + (i * 2 + 1.f / 6 + 1) * scale, yHUDOff + scale / 6.f);
 			window.draw(rect);
 		}
+		if (sharedCTRL)
+		{
+			for (int i = 0; i < *pacmen[client + 1].lives - 1; i++)
+			{
+				rect.setPosition(xoff + mapSize.x * scale - (i * 2 + 1.f / 6 + 1) * scale, yHUDOff + scale / 6.f);
+				window.draw(rect);
+			}
+		}
 	}
 
 	// Draws dot progress bar
 	rect.setSize(sf::Vector2f((mapSize.x * scale - scale / 3.f * 2) * ((float)(dots + dotProg / 100.f) / maxDots), scale));
-	rect.setPosition(xoff + scale / 3.f, yHUDOff + scale);
+	rect.setPosition(xoff + scale / 3.f, yHUDOff + scale * 2);
 	window.draw(rect);
 
 	// Draws coloring for warning
@@ -459,10 +556,16 @@ void Game::draw(sf::RenderWindow& window)
 	if (client != -1)
 	{
 		scoreTxt.setCharacterSize(scale / 2.f);
-		scoreTxt.setPosition(xoff + mapSize.x / 2 * scale - scoreTxt.getGlobalBounds().width, yHUDOff + scoreTxt.getGlobalBounds().height / 4);
+		scoreTxt.setPosition(xoff + scale, yHUDOff + scale + scoreTxt.getGlobalBounds().height / 4);
 		window.draw(scoreTxt);
+		if (sharedCTRL)
+		{
+			scoreTxt2.setCharacterSize(scale / 2.f);
+			scoreTxt2.setPosition(xoff + mapSize.x * scale - scale - scoreTxt2.getGlobalBounds().width, yHUDOff + scale + scoreTxt2.getGlobalBounds().height / 4);
+			window.draw(scoreTxt2);
+		}
 		hScoreTxt.setCharacterSize(scale / 2.f);
-		hScoreTxt.setPosition(xoff + mapSize.x * scale - hScoreTxt.getGlobalBounds().width - scale, yHUDOff + hScoreTxt.getGlobalBounds().height / 4);
+		hScoreTxt.setPosition(xoff + mapSize.x / 2 * scale - hScoreTxt.getGlobalBounds().width / 2, yHUDOff + scale + hScoreTxt.getGlobalBounds().height / 4);
 		window.draw(hScoreTxt);
 	}
 

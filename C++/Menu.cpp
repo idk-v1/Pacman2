@@ -34,43 +34,7 @@ void Menu::update(sf::RenderWindow& window, sf::Vector2i mousePos, int& menuStat
 
 	if (scale != lastScale)
 	{
-		for (int i = 0; i < bElements.size(); i++)
-		{
-			bElements[i].setPosition(
-				xoff + scale * (bCoords[i].getPosition().x - bCoords[i].getSize().x / 2.f),
-				yoff + scale * (bCoords[i].getPosition().y - bCoords[i].getSize().y / 2.f));
-			bElements[i].setSize(sf::Vector2f(
-				scale * bCoords[i].getSize().x,
-				scale * bCoords[i].getSize().y));
-			bElements[i].setTextureRect(sf::IntRect(
-				0,
-				0,
-				bTextures[i].getSize().x,
-				bTextures[i].getSize().y / (bFrames[i] + 1)));
-		}
-
-		for (int i = 0; i < tElements.size(); i++)
-		{
-			tElements[i].setCharacterSize(scale * tFontSize[i]);
-			switch (tAlign[i])
-			{
-			case 'C':
-				tElements[i].setPosition(
-					xoff + scale * tCoords[i].x - tElements[i].getGlobalBounds().width / 2.f,
-					yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
-				break;
-			case 'L':
-				tElements[i].setPosition(
-					xoff + scale * tCoords[i].x - tElements[i].getGlobalBounds().width,
-					yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
-				break;
-			case 'R':
-				tElements[i].setPosition(
-					xoff + scale * tCoords[i].x,
-					yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
-			}
-		}
-
+		rescale(window);
 		lastScale = scale;
 	}
 
@@ -223,5 +187,45 @@ void Menu::addTextElement(float x, float y, float fontSize, char align, std::str
 		text.setPosition(
 			xoff + scale * x,
 			yoff + scale * y - text.getGlobalBounds().height / 2.f);
+	}
+}
+
+void Menu::rescale(sf::RenderWindow& window)
+{
+	for (int i = 0; i < bElements.size(); i++)
+	{
+		bElements[i].setPosition(
+			xoff + scale * (bCoords[i].getPosition().x - bCoords[i].getSize().x / 2.f),
+			yoff + scale * (bCoords[i].getPosition().y - bCoords[i].getSize().y / 2.f));
+		bElements[i].setSize(sf::Vector2f(
+			scale * bCoords[i].getSize().x,
+			scale * bCoords[i].getSize().y));
+		bElements[i].setTextureRect(sf::IntRect(
+			0,
+			0,
+			bTextures[i].getSize().x,
+			bTextures[i].getSize().y / (bFrames[i] + 1)));
+	}
+
+	for (int i = 0; i < tElements.size(); i++)
+	{
+		tElements[i].setCharacterSize(scale * tFontSize[i]);
+		switch (tAlign[i])
+		{
+		case 'C':
+			tElements[i].setPosition(
+				xoff + scale * tCoords[i].x - tElements[i].getGlobalBounds().width / 2.f,
+				yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
+			break;
+		case 'L':
+			tElements[i].setPosition(
+				xoff + scale * tCoords[i].x - tElements[i].getGlobalBounds().width,
+				yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
+			break;
+		case 'R':
+			tElements[i].setPosition(
+				xoff + scale * tCoords[i].x,
+				yoff + scale * tCoords[i].y - tElements[i].getGlobalBounds().height / 2.f);
+		}
 	}
 }

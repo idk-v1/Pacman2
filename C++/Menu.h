@@ -31,6 +31,8 @@ public:
 
 	void addTextElement(float x, float y, float fontSize, char align, std::string str, sf::Font& font);
 
+	void rescale(sf::RenderWindow& window);
+
 private:
 	std::vector<sf::RectangleShape> bElements;
 	std::vector<int> bPages, bFrames;

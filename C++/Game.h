@@ -19,7 +19,7 @@ class Game
 public:
 	Game();
 
-	Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum, int pacmenNum, int ghostNum);
+	Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum, int pacmenNum, int ghostNum, bool sharedCTRL);
 
 	void update();
 
@@ -50,7 +50,7 @@ private:
 
 	std::vector<sf::Vector2f> portals;
 
-	sf::Text scoreTxt, hScoreTxt;
+	sf::Text scoreTxt, scoreTxt2, hScoreTxt;
 
 	sf::Clock timer;
 
@@ -62,7 +62,7 @@ private:
 
 	float inputBuffer = 0.5f;
 
-	bool failed = false;
+	bool failed = false, sharedCTRL = false;
 
 	sf::VertexArray mapVert, lightVert;
 	sf::RectangleShape rect;

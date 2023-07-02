@@ -16,11 +16,11 @@ int getRandMap(std::vector<int>& maps);
 
 void save(int score);
 
-void clientUpdate(sf::UdpSocket& sock, sf::IpAddress& hostIP, sf::Packet& receive, unsigned short port);
+void clientUpdate(sf::UdpSocket& sock, sf::IpAddress& hostIP, sf::Packet& receive, unsigned short port, bool gameStarted, bool& connected);
 
 bool clientConnect(sf::UdpSocket& sock, sf::IpAddress& hostIP, unsigned short& port);
 
-void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port);
+void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted);
 
 bool hostConnect(sf::UdpSocket& sock, unsigned short& port);
 
@@ -29,7 +29,7 @@ int main()
 {
 	srand(time(NULL));
 
-	int HUD = 2, level = 0, score = 0, hScore = 0, hScoreOrigin = 0, scale = std::min(sf::VideoMode::getDesktopMode().width / 28, (sf::VideoMode::getDesktopMode().height - 200) / (31 + HUD));
+	int HUD = 3, level = 0, score = 0, hScore = 0, hScoreOrigin = 0, scale = std::min(sf::VideoMode::getDesktopMode().width / 28, (sf::VideoMode::getDesktopMode().height - 200) / (31 + HUD));
 	sf::RenderWindow window(sf::VideoMode(scale * 28, scale * (31 + HUD)), "Pacman 2");
 	window.setFramerateLimit(165);
 
@@ -37,6 +37,8 @@ int main()
 
 	int menuState = 0, lastMenuState = 0;
 	bool changeMenu = false;
+
+	bool gameStarted = false;
 
 	int numMaps = 0;
 	for (auto& entry : std::filesystem::directory_iterator("../res/maps"))
@@ -68,7 +70,7 @@ int main()
 
 	Game game;
 
-	int numPacmen = 1, numGhosts = 0;
+	int numPacmen = 2, numGhosts = 0;
 
 	int numPlayers = 1, connection = 0;
 	unsigned short port;
@@ -78,8 +80,6 @@ int main()
 	sf::IpAddress hostIP, ip;
 	sf::Packet hostData;
 	std::vector<sf::Packet> clientData;
-
-	std::string ipString;
 
 	while (window.isOpen())
 	{
@@ -107,6 +107,9 @@ int main()
 		case 1: // Singleplayer
 			if (changeMenu)
 			{
+				numPacmen = 1;
+				numGhosts = 0;
+
 				scores.reserve(numPacmen);
 				lives.reserve(numPacmen);
 				livesPtr.reserve(numPacmen);
@@ -119,7 +122,8 @@ int main()
 				gameover.setElementPage(0, 1);
 				level = 0;
 				score = 0;
-				game = Game(0, HUD, livesPtr, scores, font, &hScore, 0, 0, numPacmen, numGhosts);
+				game = Game(0, HUD, livesPtr, scores, font, &hScore, level, 0, numPacmen, numGhosts, false);
+				gameStarted = true;
 			}
 			game.update();
 			game.draw(window);
@@ -136,12 +140,14 @@ int main()
 				for (int i = 0; i < numPacmen; i++)
 					scores[i] = game.getScore(i);
 				if (livesRemaining)
-					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0, numPacmen, numGhosts);
+					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0, numPacmen, numGhosts, false);
 				else
 				{
+					gameStarted = false;
 					lives.clear();
 					livesPtr.clear();
 					menuState = 2;
+					gameover.update(window, sf::Mouse::getPosition(), menuState);
 					gameover.setElementText(5, std::to_string(level + 1));
 					gameover.setElementText(4, std::to_string(hScore));
 					for (int i = 0; i < numPacmen; i++)
@@ -149,6 +155,7 @@ int main()
 						gameover.addTextElement(20, 16.5 + i, 0.75, 'L', std::to_string(scores[i]), font);
 						gameover.addTextElement(8, 16.5 + i, 0.75, 'R', "Pacman " + std::to_string(i + 1), font);
 					}
+					gameover.rescale(window);
 					if (hScore > hScoreOrigin)
 						save(hScore);
 					scores.clear();
@@ -170,7 +177,7 @@ int main()
 					connection = 1;
 			}
 			else
-				clientUpdate(sock, hostIP, hostData, port);
+				clientUpdate(sock, hostIP, hostData, port, gameStarted, connected);
 			break;
 		case 5: // host
 			if (changeMenu || !connection)
@@ -179,10 +186,65 @@ int main()
 					connection = 2;
 			}
 			else
-				hostUpdate(sock, clients, clientData, port);
+				hostUpdate(sock, clients, clientData, port, gameStarted);
 
 			break;
-		case 6: // Multiplayer Game
+		case 6: // Shared screen multiplayer
+			if (changeMenu)
+			{
+				numPacmen = 2;
+				numGhosts = 0;
+
+				scores.reserve(numPacmen);
+				lives.reserve(numPacmen);
+				livesPtr.reserve(numPacmen);
+				for (int i = 0; i < numPacmen; i++)
+				{
+					scores.push_back(0);
+					lives.push_back(3);
+					livesPtr.push_back(&lives[i]);
+				}
+				gameover.setElementPage(0, 6);
+				level = 0;
+				score = 0;
+				game = Game(0, HUD, livesPtr, scores, font, &hScore, level, 0, numPacmen, numGhosts, true);
+				gameStarted = true;
+			}
+			game.update();
+			game.draw(window);
+#if !defined(NDEBUG)
+			game.drawDebug(window);
+#endif
+
+			if (game.isOver())
+			{
+				bool livesRemaining = false;
+				for (auto& life : lives)
+					if (life)
+						livesRemaining = true;
+				for (int i = 0; i < numPacmen; i++)
+					scores[i] = game.getScore(i);
+				if (livesRemaining)
+					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0, numPacmen, numGhosts, true);
+				else
+				{
+					gameStarted = false;
+					lives.clear();
+					livesPtr.clear();
+					menuState = 2;
+					gameover.setElementText(5, std::to_string(level + 1));
+					gameover.setElementText(4, std::to_string(hScore));
+					for (int i = 0; i < numPacmen; i++)
+					{
+						gameover.addTextElement(20, 16.5 + i, 0.75, 'L', std::to_string(scores[i]), font);
+						gameover.addTextElement(8, 16.5 + i, 0.75, 'R', "Pacman " + std::to_string(i + 1), font);
+					}
+					gameover.rescale(window);
+					if (hScore > hScoreOrigin)
+						save(hScore);
+					scores.clear();
+				}
+			}
 			break;
 		}
 		changeMenu = menuState != lastMenuState;
@@ -206,18 +268,25 @@ void save(int score)
 	file.close();
 }
 
-void clientUpdate(sf::UdpSocket& sock, sf::IpAddress& hostIP, sf::Packet& receive, unsigned short port)
+void clientUpdate(sf::UdpSocket& sock, sf::IpAddress& hostIP, sf::Packet& receive, unsigned short port, bool gameStarted, bool& connected)
 {
-	sf::Packet send;
-	send << sf::IpAddress::getLocalAddress().toString();
-	sock.send(send, hostIP, 50'001);
-
-	receive.clear();
-	if (sock.receive(receive, hostIP, port) != sf::UdpSocket::NotReady)
+	if (!connected)
 	{
-		std::string data;
-		receive >> data;
-		std::cout << data << '\n';
+		sf::Packet send;
+		send << sf::IpAddress::getLocalAddress().toString();
+		sock.send(send, hostIP, 50001);
+
+		receive.clear();
+		if (sock.receive(receive, hostIP, port) != sf::UdpSocket::NotReady)
+		{
+			int num;
+			receive >> num;
+			if (num == 1)
+			{
+				connected = true;
+				std::cout << "Connected to Host\n";
+			}
+		}
 	}
 }
 
@@ -225,7 +294,7 @@ bool clientConnect(sf::UdpSocket& sock, sf::IpAddress& hostIP, unsigned short& p
 {
 	std::string ipString;
 
-	port = 50'002;
+	port = 50002;
 	if (sock.bind(port) == sf::UdpSocket::Done)
 	{
 		sock.setBlocking(false);
@@ -249,32 +318,35 @@ bool clientConnect(sf::UdpSocket& sock, sf::IpAddress& hostIP, unsigned short& p
 		return true;
 }
 
-void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port)
+void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted)
 {
-	sf::Packet clientIP;
-	sf::IpAddress any;
-	if (sock.receive(clientIP, any, port) == sf::UdpSocket::Done)
+	if (!gameStarted)
 	{
-		bool newAddress = true;
-		std::string data;
-		clientIP >> data;
-		for (auto& ip : clientsIP)
-			if (data == ip.toString())
-				newAddress = false;
-		if (newAddress)
+		sf::Packet clientIP;
+		sf::IpAddress any;
+		if (sock.receive(clientIP, any, port) == sf::UdpSocket::Done)
 		{
-			clientsIP.push_back(sf::IpAddress(data));
-			sf::Packet send;
-			send << 1;
-			sock.send(send, clientsIP.back(), 50'002);
-			std::cout << "Connected to " << data << '\n';
+			bool newAddress = true;
+			std::string data;
+			clientIP >> data;
+			for (auto& ip : clientsIP)
+				if (data == ip.toString())
+					newAddress = false;
+			if (newAddress)
+			{
+				clientsIP.push_back(sf::IpAddress(data));
+				sf::Packet send;
+				send << 1;
+				sock.send(send, clientsIP.back(), 50002);
+				std::cout << data << " Joined!\n";
+			}
 		}
 	}
 }
 
 bool hostConnect(sf::UdpSocket& sock, unsigned short& port)
 {
-	port = 50'001;
+	port = 50001;
 	if (sock.bind(port) == sf::UdpSocket::Done)
 	{
 		sock.setBlocking(false);
