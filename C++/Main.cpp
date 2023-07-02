@@ -20,7 +20,7 @@ void clientUpdate(sf::UdpSocket& sock, sf::IpAddress& hostIP, sf::Packet& receiv
 
 bool clientConnect(sf::UdpSocket& sock, sf::IpAddress& hostIP, unsigned short& port);
 
-void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted);
+void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted, bool& newConnection);
 
 bool hostConnect(sf::UdpSocket& sock, unsigned short& port);
 
@@ -33,7 +33,7 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(scale * 28, scale * (31 + HUD)), "Pacman 2");
 	window.setFramerateLimit(165);
 
-	Menu mMenu, gameover, multiplayer;
+	Menu mMenu, gameover, multiplayer, clientjoined, hostCTRL;
 
 	int menuState = 0, lastMenuState = 0;
 	bool changeMenu = false;
@@ -67,6 +67,8 @@ int main()
 	mMenu.load("../res/menu/mainmenu", font);
 	gameover.load("../res/menu/gameover", font);
 	multiplayer.load("../res/menu/multiplayer", font);
+	clientjoined.load("../res/menu/clientjoined", font);
+	hostCTRL.load("../res/menu/hostctrl", font);
 
 	Game game;
 
@@ -175,9 +177,17 @@ int main()
 			{
 				if (clientConnect(sock, hostIP, port))
 					connection = 1;
+				clientjoined.setElementText(1, "IP: " + sf::IpAddress::getLocalAddress().toString());
 			}
 			else
+			{
 				clientUpdate(sock, hostIP, hostData, port, gameStarted, connected);
+				if (connected)
+				{
+					clientjoined.update(window, sf::Mouse::getPosition(window), menuState);
+					clientjoined.draw(window);
+				}
+			}
 			break;
 		case 5: // host
 			if (changeMenu || !connection)
@@ -186,7 +196,17 @@ int main()
 					connection = 2;
 			}
 			else
-				hostUpdate(sock, clients, clientData, port, gameStarted);
+			{
+				bool newConnection = false;
+				hostUpdate(sock, clients, clientData, port, gameStarted, newConnection);
+				if (newConnection)
+				{
+					hostCTRL.addTextElement(8, 7 + clients.size(), 0.75, 'R', clients.back().toString(), font);
+					hostCTRL.rescale(window); 
+				}
+				hostCTRL.update(window, sf::Mouse::getPosition(window), menuState);
+				hostCTRL.draw(window);
+			}
 
 			break;
 		case 6: // Shared screen multiplayer
@@ -245,6 +265,8 @@ int main()
 					scores.clear();
 				}
 			}
+			break;
+		case 7: // Network Multiplayer
 			break;
 		}
 		changeMenu = menuState != lastMenuState;
@@ -318,7 +340,7 @@ bool clientConnect(sf::UdpSocket& sock, sf::IpAddress& hostIP, unsigned short& p
 		return true;
 }
 
-void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted)
+void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std::vector<sf::Packet>& receive, unsigned short port, bool gameStarted, bool& newConnection)
 {
 	if (!gameStarted)
 	{
@@ -334,6 +356,7 @@ void hostUpdate(sf::UdpSocket& sock, std::vector<sf::IpAddress>& clientsIP, std:
 					newAddress = false;
 			if (newAddress)
 			{
+				newConnection = true;
 				clientsIP.push_back(sf::IpAddress(data));
 				sf::Packet send;
 				send << 1;
