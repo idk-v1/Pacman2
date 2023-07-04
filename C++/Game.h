@@ -33,6 +33,8 @@ public:
 
 	int getScore(int index);
 
+	void del();
+
 private:
 	void loadMap(int num);
 
@@ -65,8 +67,8 @@ private:
 	bool failed = false, sharedCTRL = false;
 
 	sf::VertexArray mapVert, lightVert;
-	sf::RectangleShape rect;
-	sf::Texture texture;
+	sf::RectangleShape rect, pacRect;
+	sf::Texture texture, *pacTex = NULL;
 	
 	sf::Vector2i mapSize = { 28, 31 }, ghostSpawn, pacmanSpawn;
 };

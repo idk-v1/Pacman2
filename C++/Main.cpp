@@ -146,9 +146,13 @@ int main()
 				for (int i = 0; i < numPacmen; i++)
 					scores[i] = game.getScore(i);
 				if (livesRemaining)
+				{
+					game.del();
 					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0, numPacmen, numGhosts, false);
+				}
 				else
 				{
+					game.del();
 					gameStarted = false;
 					lives.clear();
 					livesPtr.clear();
@@ -253,9 +257,13 @@ int main()
 				for (int i = 0; i < numPacmen; i++)
 					scores[i] = game.getScore(i);
 				if (livesRemaining)
+				{
+					game.del();
 					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0, numPacmen, numGhosts, true);
+				}
 				else
 				{
+					game.del();
 					gameStarted = false;
 					lives.clear();
 					livesPtr.clear();

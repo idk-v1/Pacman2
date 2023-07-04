@@ -7,7 +7,12 @@ Game::Game()
 
 Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, sf::Font& font, int *hScore, int level, int clientNum, int pacmenNum, int ghostNum, bool sharedCTRL)
 {
-	texture.loadFromFile("../res/textures/tilemap.png");
+	texture.loadFromFile("../res/textures/Tilemap.png");
+
+	pacTex = new sf::Texture();
+	pacTex->loadFromFile("../res/textures/Pacman.png");
+	pacRect.setTexture(pacTex);
+
 	loadMap(num);
 
 	for (int i = 0; i < 3; i++)
@@ -400,83 +405,85 @@ void Game::draw(sf::RenderWindow& window)
 	{
 		if (*pacman.lives && !pacman.hasWon())
 		{
-			rect.setSize(sf::Vector2f(scale, scale));
+			pacRect.setSize(sf::Vector2f(scale, scale));
+			pacRect.setTextureRect(sf::IntRect(0, pacman.getAnimation() * 22, 22, 22));
 
 			// Blinks when invincible
 			if (pacman.getDamageTimer() / 6 % 2)
-				rect.setFillColor(sf::Color(0xAAAA00FF));
+				pacRect.setFillColor(sf::Color(0xAAAA00FF));
 			else
-				rect.setFillColor(sf::Color(0xFFFF00FF));
+				pacRect.setFillColor(sf::Color(0xFFFF00FF));
 
 			// Draws a duplicate pacman in the opposite portal
 			if (pacman.getPos().x == 0)
 			{
-				rect.setPosition(
+				pacRect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-				window.draw(rect);
+				window.draw(pacRect);
 				if (dots)
 				{
-					rect.setPosition(
+					pacRect.setPosition(
 						xoff + (mapSize.x + pacman.getProg().x / 100.f) * scale,
 						yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-					window.draw(rect);
+					window.draw(pacRect);
 				}
 			}
 			else if (pacman.getPos().x == mapSize.x - 1)
 			{
 				if (dots)
 				{
-					rect.setPosition(
+					pacRect.setPosition(
 						xoff + (-1 + pacman.getProg().x / 100.f) * scale,
 						yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-					window.draw(rect);
+					window.draw(pacRect);
 				}
-				rect.setPosition(
+				pacRect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-				window.draw(rect);
+				window.draw(pacRect);
 			}
 			else if (pacman.getPos().y == 0)
 			{
-				rect.setPosition(
+				pacRect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-				window.draw(rect);
+				window.draw(pacRect);
 				if (dots)
 				{
-					rect.setPosition(
+					pacRect.setPosition(
 						xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 						yoff + (mapSize.y + pacman.getProg().y / 100.f) * scale);
-					window.draw(rect);
+					window.draw(pacRect);
 				}
 			}
 			else if (pacman.getPos().y == mapSize.y - 1)
 			{
 				if (dots)
 				{
-					rect.setPosition(
+					pacRect.setPosition(
 						xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 						yoff + (-1 + pacman.getProg().y / 100.f) * scale);
-					window.draw(rect);
+					window.draw(pacRect);
 				}
-				rect.setPosition(
+				pacRect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-				window.draw(rect);
+				window.draw(pacRect);
 			}
 			// Draws pacman normally
 			else
 			{
-				rect.setPosition(
+				pacRect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
-				window.draw(rect);
+				window.draw(pacRect);
 			}
 		}
 	}
 
 	// Draws ghosts
+	rect.setSize(sf::Vector2f(scale, scale));
 	for (auto& ghost : ghosts)
 	{
 		rect.setFillColor(ghost->getColor());
@@ -639,6 +646,13 @@ bool Game::isOver()
 int Game::getScore(int index)
 {
 	return pacmen[index].getScore();
+}
+
+// DO NOT REMOVE OR REPLACE
+// This is the deconstructor because otherwise it deletes the texture of pacman before the game starts
+void Game::del()
+{
+	delete pacTex;
 }
 
 void Game::loadMap(int num)

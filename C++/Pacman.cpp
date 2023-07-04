@@ -112,6 +112,8 @@ void Pacman::move(int dir, std::vector<std::vector<char>>& map, int dots, sf::Ve
 
 	if (win)
 		damageTimer = 1;
+
+	animation = (animation + 1) % (8 * anSpeed);
 }
 
 sf::Vector2i Pacman::getPos()
@@ -202,6 +204,11 @@ void Pacman::subtractBonus(int value)
 void Pacman::endBonus()
 {
 	bonusScore = bonusScore / 60 * 500;
+}
+
+int Pacman::getAnimation()
+{
+	return animation / anSpeed;
 }
 
 bool Pacman::canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize)

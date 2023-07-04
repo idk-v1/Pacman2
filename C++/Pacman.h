@@ -44,6 +44,8 @@ public:
 
 	void endBonus();
 
+	int getAnimation();
+
 	int* lives = NULL;
 
 private:
@@ -51,6 +53,6 @@ private:
 	bool canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vector2i mapSize);
 
 	sf::Vector2i pos, prog;
-	int speed = 7, dir = 3, damageTimer = 0, score = 0, bonusScore = 60 * 10;
+	int speed = 7, dir = 3, damageTimer = 0, score = 0, bonusScore = 60 * 10, animation = 0, anSpeed = 2;
 	bool power = false, win = false;
 };
