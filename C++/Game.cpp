@@ -226,7 +226,7 @@ void Game::update()
 
 		// Dot bar animation
 		if (dotProg > 0)
-			dotProg -= 7 * std::ceil(dotProg / 100);
+			dotProg -= 7 * std::ceil(dotProg / 100.f);
 		if (dotProg < 0)
 			dotProg++;
 
@@ -531,24 +531,27 @@ void Game::draw(sf::RenderWindow& window)
 	// Draws remaining lives
 	if (client != -1)
 	{
-		rect.setFillColor(sf::Color(0xFFFF00FF));
-		rect.setSize(sf::Vector2f(scale / 3.f * 2, scale / 3.f * 2));
+		pacRect.setFillColor(sf::Color(0xFFFF00FF));
+		pacRect.setSize(sf::Vector2f(scale / 3.f * 2, scale / 3.f * 2));
+		pacRect.setTextureRect(sf::IntRect(22, 66, 22, 22));
 		for (int i = 0; i < *pacmen[client].lives - 1; i++)
 		{
-			rect.setPosition(xoff + (i * 2 + 1.f / 6 + 1) * scale, yHUDOff + scale / 6.f);
-			window.draw(rect);
+			pacRect.setPosition(xoff + (i * 2 + 1.f / 6 + 1) * scale, yHUDOff + scale / 6.f);
+			window.draw(pacRect);
 		}
 		if (sharedCTRL)
 		{
+			pacRect.setTextureRect(sf::IntRect(66, 66, 22, 22));
 			for (int i = 0; i < *pacmen[client + 1].lives - 1; i++)
 			{
-				rect.setPosition(xoff + mapSize.x * scale - (i * 2 + 1.f / 6 + 1) * scale, yHUDOff + scale / 6.f);
-				window.draw(rect);
+				pacRect.setPosition(xoff + mapSize.x * scale - (i * 2 + 1.f / 6 + 1) * scale, yHUDOff + scale / 6.f);
+				window.draw(pacRect);
 			}
 		}
 	}
 
 	// Draws dot progress bar
+	rect.setFillColor(sf::Color(0xFFFF00FF));
 	rect.setSize(sf::Vector2f((mapSize.x * scale - scale / 3.f * 2) * ((dots + dotProg / 100.f) / (float)maxDots), scale));
 	rect.setPosition(xoff + scale / 3.f, yHUDOff + scale * 2);
 	window.draw(rect);
