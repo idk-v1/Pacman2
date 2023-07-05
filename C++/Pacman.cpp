@@ -113,7 +113,7 @@ void Pacman::move(int dir, std::vector<std::vector<char>>& map, int dots, sf::Ve
 	if (win)
 		damageTimer = 1;
 
-	animation = (animation + 1) % (8 * anSpeed);
+	animate(map, mapSize);
 }
 
 sf::Vector2i Pacman::getPos()
@@ -218,4 +218,57 @@ bool Pacman::canMove(int x, int y, std::vector<std::vector<char>>& map, sf::Vect
 	if (x == -1 || x == mapSize.x || y == -1 || y == mapSize.y)
 		return true;
 	return false;
+}
+
+void Pacman::animate(std::vector<std::vector<char>>& map, sf::Vector2i mapSize)
+{
+	switch (dir)
+	{
+	case 0:
+		if (canMove(pos.x, pos.y - 1, map, mapSize))
+			animation++;
+		else if (animation)
+		{
+			if (animation / anSpeed >= 4)
+				animation++;
+			else
+				animation--;
+		}
+		break;
+	case 1:
+		if (canMove(pos.x + 1, pos.y, map, mapSize))
+			animation++;
+		else if (animation)
+		{
+			if (animation / anSpeed >= 4)
+				animation++;
+			else
+				animation--;
+		}
+		break;
+	case 2:
+		if (canMove(pos.x, pos.y + 1, map, mapSize))
+			animation++;
+		else if (animation)
+		{
+			if (animation / anSpeed >= 4)
+				animation++;
+			else
+				animation--;
+		}
+		break;
+	case 3:
+		if (canMove(pos.x - 1, pos.y, map, mapSize))
+			animation++;
+		else if (animation)
+		{
+			if (animation / anSpeed >= 4)
+				animation++;
+			else
+				animation--;
+		}
+	}
+
+	if (animation >= 8 * anSpeed || animation < 0)
+		animation = 0;
 }

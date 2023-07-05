@@ -20,6 +20,7 @@ void ChaserGhost::special(std::vector<std::vector<char>>& map, std::vector<Pacma
 
 		if (timer)
 		{
+			firstTarget = false;
 			hasTarget = true;
 			if (targetPacman != -1)
 			target = pacmen[targetPacman].getPos();

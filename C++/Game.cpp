@@ -406,7 +406,7 @@ void Game::draw(sf::RenderWindow& window)
 		if (*pacman.lives && !pacman.hasWon())
 		{
 			pacRect.setSize(sf::Vector2f(scale, scale));
-			pacRect.setTextureRect(sf::IntRect(0, pacman.getAnimation() * 22, 22, 22));
+			pacRect.setTextureRect(sf::IntRect(pacman.getDir() * 22, pacman.getAnimation() * 22, 22, 22));
 
 			// Blinks when invincible
 			if (pacman.getDamageTimer() / 6 % 2)
@@ -549,7 +549,7 @@ void Game::draw(sf::RenderWindow& window)
 	}
 
 	// Draws dot progress bar
-	rect.setSize(sf::Vector2f((mapSize.x * scale - scale / 3.f * 2) * ((float)(dots + dotProg / 100.f) / maxDots), scale));
+	rect.setSize(sf::Vector2f((mapSize.x * scale - scale / 3.f * 2) * ((dots + dotProg / 100.f) / (float)maxDots), scale));
 	rect.setPosition(xoff + scale / 3.f, yHUDOff + scale * 2);
 	window.draw(rect);
 
