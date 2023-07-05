@@ -13,6 +13,8 @@
 #include <SFML/Graphics/Text.hpp>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <random>
 
 #pragma once
 class Game
@@ -60,10 +62,10 @@ private:
 	std::vector<sf::Color> colors =
 	{
 		sf::Color(0xFFFF00FF),
-		sf::Color(0xFF0000FF),
 		sf::Color(0x00FF87FF),
 		sf::Color(0x0087FFFF),
-		sf::Color(0x8700FFFF)
+		sf::Color(0x8700FFFF),
+		sf::Color(0xFF0000FF)
 	};
 
 	int scale = 0, oldScale = 0, xoff = 0, yoff = 0, yHUDOff = 0,

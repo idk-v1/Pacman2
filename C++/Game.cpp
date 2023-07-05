@@ -54,6 +54,10 @@ Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, 
 #else
 	setLightScale(7);
 #endif
+
+	std::random_device rd;
+	std::default_random_engine rnd(rd());
+	std::shuffle(colors.begin(), colors.end(), rnd);
 }
 
 
