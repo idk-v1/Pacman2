@@ -152,6 +152,8 @@ void Game::update()
 		{
 			startTimer--;
 			pacmen[client].setDir(inputDir[client]);
+			if (sharedCTRL)
+				pacmen[client + 1].setDir(inputDir[client + 1]);
 		}
 		else
 		{
@@ -401,12 +403,18 @@ void Game::draw(sf::RenderWindow& window)
 	window.draw(mapVert, &texture);
 
 	// Draws pacman if alive
+	int count = 0;
 	for (auto& pacman : pacmen)
 	{
 		if (*pacman.lives && !pacman.hasWon())
 		{
 			pacRect.setSize(sf::Vector2f(scale, scale));
 			pacRect.setTextureRect(sf::IntRect(pacman.getDir() * 22, pacman.getAnimation() * 22, 22, 22));
+
+			pacOutline.setRadius(scale / 2.f);
+			pacOutline.setFillColor(sf::Color(0x00000000));
+			pacOutline.setOutlineColor(colors[count]);
+			pacOutline.setOutlineThickness(1);
 
 			// Blinks when invincible
 			if (pacman.getDamageTimer() / 6 % 2)
@@ -421,12 +429,16 @@ void Game::draw(sf::RenderWindow& window)
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 				window.draw(pacRect);
+				pacOutline.setPosition(pacRect.getPosition());
+				window.draw(pacOutline);
 				if (dots)
 				{
 					pacRect.setPosition(
 						xoff + (mapSize.x + pacman.getProg().x / 100.f) * scale,
 						yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 					window.draw(pacRect);
+					pacOutline.setPosition(pacRect.getPosition());
+					window.draw(pacOutline);
 				}
 			}
 			else if (pacman.getPos().x == mapSize.x - 1)
@@ -437,11 +449,15 @@ void Game::draw(sf::RenderWindow& window)
 						xoff + (-1 + pacman.getProg().x / 100.f) * scale,
 						yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 					window.draw(pacRect);
+					pacOutline.setPosition(pacRect.getPosition());
+					window.draw(pacOutline);
 				}
 				pacRect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 				window.draw(pacRect);
+				pacOutline.setPosition(pacRect.getPosition());
+				window.draw(pacOutline);
 			}
 			else if (pacman.getPos().y == 0)
 			{
@@ -449,12 +465,16 @@ void Game::draw(sf::RenderWindow& window)
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 				window.draw(pacRect);
+				pacOutline.setPosition(pacRect.getPosition());
+				window.draw(pacOutline);
 				if (dots)
 				{
 					pacRect.setPosition(
 						xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 						yoff + (mapSize.y + pacman.getProg().y / 100.f) * scale);
 					window.draw(pacRect);
+					pacOutline.setPosition(pacRect.getPosition());
+					window.draw(pacOutline);
 				}
 			}
 			else if (pacman.getPos().y == mapSize.y - 1)
@@ -465,11 +485,15 @@ void Game::draw(sf::RenderWindow& window)
 						xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 						yoff + (-1 + pacman.getProg().y / 100.f) * scale);
 					window.draw(pacRect);
+					pacOutline.setPosition(pacRect.getPosition());
+					window.draw(pacOutline);
 				}
 				pacRect.setPosition(
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 				window.draw(pacRect);
+				pacOutline.setPosition(pacRect.getPosition());
+				window.draw(pacOutline);
 			}
 			// Draws pacman normally
 			else
@@ -478,8 +502,11 @@ void Game::draw(sf::RenderWindow& window)
 					xoff + (pacman.getPos().x + pacman.getProg().x / 100.f) * scale,
 					yoff + (pacman.getPos().y + pacman.getProg().y / 100.f) * scale);
 				window.draw(pacRect);
+				pacOutline.setPosition(pacRect.getPosition());
+				window.draw(pacOutline);
 			}
 		}
+		count++;
 	}
 
 	// Draws ghosts
@@ -565,15 +592,18 @@ void Game::draw(sf::RenderWindow& window)
 	// Draws score
 	if (client != -1)
 	{
+		scoreTxt.setFillColor(colors[0]);
 		scoreTxt.setCharacterSize(scale / 2.f);
 		scoreTxt.setPosition(xoff + scale, yHUDOff + scale + scoreTxt.getGlobalBounds().height / 4);
 		window.draw(scoreTxt);
 		if (sharedCTRL)
 		{
+			scoreTxt2.setFillColor(colors[1]);
 			scoreTxt2.setCharacterSize(scale / 2.f);
 			scoreTxt2.setPosition(xoff + mapSize.x * scale - scale - scoreTxt2.getGlobalBounds().width, yHUDOff + scale + scoreTxt2.getGlobalBounds().height / 4);
 			window.draw(scoreTxt2);
 		}
+		scoreTxt.setFillColor(sf::Color(0xFFFFFFFF));
 		hScoreTxt.setCharacterSize(scale / 2.f);
 		hScoreTxt.setPosition(xoff + mapSize.x / 2 * scale - hScoreTxt.getGlobalBounds().width / 2, yHUDOff + scale + hScoreTxt.getGlobalBounds().height / 4);
 		window.draw(hScoreTxt);

@@ -5,6 +5,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Image.hpp>
@@ -56,6 +57,15 @@ private:
 
 	sf::Clock timer;
 
+	std::vector<sf::Color> colors =
+	{
+		sf::Color(0xFFFF00FF),
+		sf::Color(0xFF0000FF),
+		sf::Color(0x00FF87FF),
+		sf::Color(0x0087FFFF),
+		sf::Color(0x8700FFFF)
+	};
+
 	int scale = 0, oldScale = 0, xoff = 0, yoff = 0, yHUDOff = 0,
 		lightScale = 3, lightRange = 10, maxLight = lightScale * lightRange,
 		lag = 0, overTimer = 5 * 60, startTimer = 3 * 60, seenTimer = 0, portalTimer = 0,
@@ -69,6 +79,7 @@ private:
 	sf::VertexArray mapVert, lightVert;
 	sf::RectangleShape rect, pacRect;
 	sf::Texture texture, *pacTex = NULL;
+	sf::CircleShape pacOutline;
 	
 	sf::Vector2i mapSize = { 28, 31 }, ghostSpawn, pacmanSpawn;
 };
