@@ -259,6 +259,9 @@ int main()
 				if (livesRemaining)
 				{
 					game.del();
+					for (auto& life : lives)
+						if (!life)
+							life = 1;
 					game = Game(getRandMap(maps), HUD, livesPtr, scores, font, &hScore, ++level, 0, numPacmen, numGhosts, true);
 				}
 				else

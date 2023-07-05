@@ -31,6 +31,8 @@ Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, 
 	hScoreTxt.setFont(font);
 
 	timer.restart();
+
+	// Creates a Pacman for each player
 	for (int i = 0; i < pacmenNum; i++)
 	{
 		pacmen.push_back(Pacman());
@@ -42,19 +44,17 @@ Game::Game(int num, int HUD, std::vector<int*>& lives, std::vector<int>& score, 
 		ghosts.back()->assignPacman(i);
 	}
 
-	if (failed)
-		for (int i = 0; i < 4 - ghosts.size(); i++)
-			ghosts.push_back(new ChaserGhost);
-
 	for (auto& ghost : ghosts)
 		ghost->start(ghostSpawn);
 
+	// Debug mode is laggier. I assume it is keeping track of recursive variables
 #if !defined(NDEBUG)
 	setLightScale(4);
 #else
 	setLightScale(7);
 #endif
 
+	// Shuffles player outline colors so someone can't complain about not liking a certain color
 	std::random_device rd;
 	std::default_random_engine rnd(rd());
 	std::shuffle(colors.begin(), colors.end(), rnd);
@@ -68,6 +68,7 @@ void Game::update()
 
 	lag += timer.restart().asMilliseconds();
 
+	// If game is in shared mode WASD controls player 1 and the arrow keys control player 2
 	if (sharedCTRL)
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
@@ -112,6 +113,7 @@ void Game::update()
 			inputDir[client + 1] = 3;
 		}
 	}
+	// Non shared mode both WASD and arrow keys work the same
 	else
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
@@ -151,10 +153,12 @@ void Game::update()
 		onPortal = false;
 		power = true;
 
-		// Wait 3 seconds
+		// Wait 3 seconds for game to start
 		if (startTimer)
 		{
 			startTimer--;
+
+			// changes direction without moving at start
 			pacmen[client].setDir(inputDir[client]);
 			if (sharedCTRL)
 				pacmen[client + 1].setDir(inputDir[client + 1]);
@@ -168,6 +172,7 @@ void Game::update()
 				ghost->move(map, pacmen, ghosts, mapSize);
 			}
 
+			// input buffers for pacman
 			for (int i = 0; i < pacmen.size(); i++)
 			{
 				if (inputTimer[i])
@@ -180,6 +185,7 @@ void Game::update()
 			int count = 0;
 			for (auto& pacman : pacmen)
 			{
+				// only move pacman if that pacman has not won or died
 				if (!pacman.hasWon() && *pacman.lives)
 				{
 					pacman.move(inputDir[count], map, dots, mapSize);
@@ -188,6 +194,7 @@ void Game::update()
 					if (map[pacman.getPos().y][pacman.getPos().x] == 7 || map[pacman.getPos().y][pacman.getPos().x] == 8)
 					{
 						// Power up pacman if dot is powerup
+						// only add score to pacman
 						if (map[pacman.getPos().y][pacman.getPos().x] == 8)
 						{
 							pacman.setPower();
@@ -196,6 +203,8 @@ void Game::update()
 							pacman.addScore(40);
 						}
 						pacman.addScore(10);
+
+						// remove dot for all players
 						dots--;
 						dotProg += 100;
 						mapVert[(pacman.getPos().x + pacman.getPos().y * mapSize.x) * 4 + 0].texCoords = { 0,  0 };
@@ -209,7 +218,7 @@ void Game::update()
 			}
 		}
 
-		// Replaces dots in final map
+		// Replaces dots in built in map to make it unbeatable
 		if (failed)
 		{
 			if (dots <= maxDots / 3)
@@ -231,6 +240,7 @@ void Game::update()
 		}
 
 		// Dot bar animation
+		// scales speed
 		if (dotProg > 0)
 			dotProg -= 7 * std::ceil(dotProg / 100.f);
 		if (dotProg < 0)
@@ -242,13 +252,17 @@ void Game::update()
 		int count = 0;
 		for (auto& pacman : pacmen)
 		{
+			// counts number of alive pacmen
 			if (*pacman.lives)
 				count++;
+			// if a pacman is not dead and hasn't won
 			if (!pacman.hasWon() && *pacman.lives)
 				allWon = false;
+			// if atleast one pacman is still alive
 			if (*pacman.lives)
 				livesRemain = true;
 		}
+		// if no pacmen were counted, game over
 		if (!count)
 			allWon = false;
 		if (!livesRemain || allWon)
@@ -256,6 +270,7 @@ void Game::update()
 			if (overTimer == 5 * 60)
 				if (client != -1)
 				{
+					// set ending  bonus score to actual value for animation because it was stealing points otherwise
 					pacmen[client].endBonus();
 					if (sharedCTRL)
 						pacmen[client + 1].endBonus();
@@ -266,6 +281,7 @@ void Game::update()
 				delete ghost;
 			ghosts.clear();
 			startTimer = 1;
+			// adding bonus score to score animation
 			if (client != -1)
 			{
 				if (pacmen[client].getBonusScore())
@@ -322,6 +338,7 @@ void Game::update()
 					pacmen[client + 1].subtractBonus();
 
 			// Warning animation
+			// in shared mode the red will be shown if one pacman is seen even if the other is powerd up or not seen
 			if (!pacmen[client].getPower())
 				power = false;
 			if (sharedCTRL)
@@ -338,31 +355,30 @@ void Game::update()
 				if (seenTimer > 0)
 					seenTimer--;
 
+			// set high score if greater
+			// works for shared mode too because the highscore is only stored on the local machine
 			if (pacmen[client].getScore() > *hScore)
 				*hScore = pacmen[client].getScore();
 			if (sharedCTRL)
 				if (pacmen[client + 1].getScore() > *hScore)
 				*hScore = pacmen[client + 1].getScore();
 
+			// updates scores text
 			scoreTxt.setString("SCORE " + std::to_string(pacmen[client].getScore()) + "+" + std::to_string((!livesRemain || allWon) ? pacmen[client].getBonusScore() : (pacmen[client].getBonusScore() / 60 * 500)));
 			if (sharedCTRL)
 				scoreTxt2.setString("SCORE " + std::to_string(pacmen[client + 1].getScore()) + "+" + std::to_string((!livesRemain || allWon) ? pacmen[client + 1].getBonusScore() : (pacmen[client + 1].getBonusScore() / 60 * 500)));
 			hScoreTxt.setString("HIGH " + std::to_string(*hScore) + " LVL " + std::to_string(level + 1));
 		}
 
+		// portal fade in animation after all dots are eaten
 		if (!dots && portalTimer < 60)
 			portalTimer += 2;
 
 
 		// Light pacman
-		if (sharedCTRL)
-		{
-			for (auto& pacman : pacmen)
-				if (*pacman.lives)
-					recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight, false);
-		}
-		else
-			recLight(map, light, lightVert, (pacmen[client].getPos().x + pacmen[client].getProg().x / 100.f + 0.5f) * lightScale, (pacmen[client].getPos().y + pacmen[client].getProg().y / 100.f + 0.5f) * lightScale, maxLight, false);
+		for (auto& pacman : pacmen)
+			if (*pacman.lives)
+				recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight, false);
 
 		// Light portals
 		for (auto portal : portals)
@@ -699,6 +715,7 @@ void Game::loadMap(int num)
 	sf::Image img;
 	sf::Color color;
 
+	// reserves maps
 	map.resize(mapSize.y);
 	for (auto& y : map)
 		y.resize(mapSize.x);
@@ -717,35 +734,37 @@ void Game::loadMap(int num)
 
 	if (img.loadFromFile("../res/maps/map" + std::to_string(num) + ".png"))
 	{
+		// converts map image to tile values
 		for (int y = 0; y < mapSize.y; y++)
 			for (int x = 0; x < mapSize.x / 2; x++)
 			{
 				switch (img.getPixel(x, y).toInteger())
 				{
-				case 0xFFFFFFFF:
+				case 0xFFFFFFFF: // empty
 					map[y][x] = 0;
 					break;
-				case 0x000000FF:
+				case 0x000000FF: // wall
 					map[y][x] = 1;
 					break;
-				case 0x0000FFFF:
+				case 0x0000FFFF: // invalid
 					map[y][x] = 2;
 					break;
-				case 0xFF0000FF:
+				case 0xFF0000FF: // ghost spawn
 					map[y][x] = 3;
 					break;
-				case 0xFFFF00FF:
+				case 0xFFFF00FF: // dot
 					map[y][x] = 7;
 					break;
-				case 0xFF00FFFF:
+				case 0xFF00FFFF: // powerup
 					map[y][x] = 8;
 					break;
-				case 0x00FFFFFF:
+				case 0x00FFFFFF: // pacman spawn
 					map[y][x] = 9;
 					break;
 				}
 			}
 	}
+	// loads built in map / final unbeatable level
 	else
 	{
 		failed = true;
@@ -753,10 +772,12 @@ void Game::loadMap(int num)
 		for (int y = 0; y < mapSize.y; y++)
 			for (int x = 0; x < mapSize.x; x++)
 			{
+				// border walls
 				if (x == 0 || y == 0 || x == mapSize.x - 1 || y == mapSize.y - 1)
 					map[y][x] = 1;
 				else
 				{
+					// makes a lot of rectangle obstacles
 					if ((x + 4) % 5 && (y + 6) % 7)
 					{
 						if ((x + 4) % 5 < 4 && (x + 4) % 5 > 1 && (y + 6) % 7 < 6 && (y + 6) % 7 > 1)
@@ -769,6 +790,7 @@ void Game::loadMap(int num)
 				}
 			}
 
+		// sets spawn positions
 		map[15][0] = 0;
 		map[mapSize.y / 3][mapSize.x / 2 - 1] = 3;
 		map[mapSize.y / 3.f * 2 + 2][mapSize.x / 2 - 1] = 9;
