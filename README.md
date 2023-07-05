@@ -6,7 +6,7 @@
 #### Textures and sounds and animations will come later.
 
 ## Controls
-- Use WASD or the arrow keys to change directions.
+- Use WASD or the arrow keys to change directions. For shared mode WASD controls player 1 and the arrow keys control player 2.
 - Use numbers 1 - 9 to change the lighting scale (I can't tell the difference past 7).
 
 ## Changes from the original
