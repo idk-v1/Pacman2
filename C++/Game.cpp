@@ -378,7 +378,7 @@ void Game::update()
 		// Light pacman
 		for (auto& pacman : pacmen)
 			if (*pacman.lives)
-				recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight, false);
+				recLight(map, light, lightVert, (pacman.getPos().x + pacman.getProg().x / 100.f + 0.5f) * lightScale, (pacman.getPos().y + pacman.getProg().y / 100.f + 0.5f) * lightScale, maxLight * overTimer / (5.f * 60), false);
 
 		// Light portals
 		for (auto portal : portals)
@@ -424,17 +424,21 @@ void Game::draw(sf::RenderWindow& window)
 
 	// Draws pacman if alive
 	int count = 0;
+	pacRect.setSize(sf::Vector2f(scale, scale));
+
+	pacOutline.setRadius(scale / 2.f);
+	pacOutline.setFillColor(sf::Color(0x00000000));
+	if (pacmen.size() == 1)
+		pacOutline.setOutlineThickness(0);
+	else
+		pacOutline.setOutlineThickness(1);
+
 	for (auto& pacman : pacmen)
 	{
 		if (*pacman.lives && !pacman.hasWon())
 		{
-			pacRect.setSize(sf::Vector2f(scale, scale));
-			pacRect.setTextureRect(sf::IntRect(pacman.getDir() * 22, pacman.getAnimation() * 22, 22, 22));
-
-			pacOutline.setRadius(scale / 2.f);
-			pacOutline.setFillColor(sf::Color(0x00000000));
 			pacOutline.setOutlineColor(colors[count]);
-			pacOutline.setOutlineThickness(1);
+			pacRect.setTextureRect(sf::IntRect(pacman.getDir() * 22, pacman.getAnimation() * 22, 22, 22));
 
 			// Blinks when invincible
 			if (pacman.getDamageTimer() / 6 % 2)
@@ -558,8 +562,8 @@ void Game::draw(sf::RenderWindow& window)
 		}
 	}
 
-	// Orange overlay
-	rect.setFillColor(sf::Color(0xFF880044));
+	// overlay
+	rect.setFillColor(sf::Color(0x5F4F3F3F));
 	rect.setSize(sf::Vector2f(mapSize.x * scale, mapSize.y * scale));
 	rect.setPosition(xoff, yoff);
 	window.draw(rect);
@@ -612,7 +616,10 @@ void Game::draw(sf::RenderWindow& window)
 	// Draws score
 	if (client != -1)
 	{
-		scoreTxt.setFillColor(colors[0]);
+		if (pacmen.size() == 1)
+			scoreTxt.setFillColor(sf::Color(0xFFFFFFFF));
+		else
+			scoreTxt.setFillColor(colors[0]);
 		scoreTxt.setCharacterSize(scale / 2.f);
 		scoreTxt.setPosition(xoff + scale, yHUDOff + scale + scoreTxt.getGlobalBounds().height / 4);
 		window.draw(scoreTxt);
